@@ -1,0 +1,152 @@
+.gaeiHeader {
+    background: #4682b4;
+    border-bottom: 1px #11629A solid;
+    position: relative;
+    margin-bottom: 0;
+    height: 70px;
+    overflow: visible;
+    border-width: 0;
+    border-radius: 0;
+    box-shadow:0px 1px 2px #333333;
+}
+
+.logo {
+    float: left;
+}
+
+.logoBtnToggle {
+    display: none;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.logoImg {
+    display: block;
+    padding-left: 6px;
+    padding-top: 1px;
+}
+
+.headerInfo {
+    float: right;
+    margin-top: 5px;
+}
+
+.headerInfoList {
+    float: right;
+
+    > li {
+        border-right: 1px #89b7dd solid;
+        float: left;
+        height: 28px;
+
+        &:last-child {
+            border-right: none;
+        }
+
+        div {
+            padding: 0 10px;
+            height: 28px;
+            line-height: 28px;
+            color: #FFF;
+        }
+
+        > a {
+            display: block;
+            padding: 0 10px;
+            height: 28px;
+            line-height: 28px;
+            text-decoration: none;
+            color: #FFF;
+            border-radius: 5px;
+        }
+    }
+}
+
+.badge {
+    background: #FFF;
+    color: #FF0000;
+}
+
+.dropdown {
+    right: 0;
+    left: auto;
+    background-color: #397CA7;
+    min-width: 50px;
+    border-radius: 0;
+
+    > li {
+        border-right: none;
+        float: none;
+
+        > a {
+            padding: 3px 10px;
+            width: auto;
+            color: #FFF;
+            border-radius: 0;
+
+            &:hover {
+                color: #000;
+                text-decoration: none;
+                background-color: #fff;
+            }
+        }
+    }
+}
+
+.hnav {
+    position: absolute;
+    top: 38px;
+    width: 100%;
+    height: 32px;
+    overflow: visible;
+}
+
+.hnavBox {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    top: 0;
+    bottom: 0;
+    padding: 0 20px;
+}
+
+.hnavUI {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 32px;
+
+    li {
+        float: left;
+        background-color: #D6E6F2;
+        border-top: 1px #fff solid;
+        border-right: 1px #D6E6F2 solid;
+        border-left: 1px #D6E6F2 solid;
+
+        &:first-child {
+            border-radius: 1px 0 0 0;
+        }
+
+        a {
+            display: block;
+            padding: 0 20px;
+            height: 29px;
+            font-size: 14px;
+            line-height: 29px;
+            font-weight: normal;
+            color: #222;
+            border: none;
+            text-decoration: none;
+        }
+
+        &.active {
+            background-color: #315a7d;
+            border-color: #315a7d;
+
+            a {
+                color: #fff;
+            }
+        }
+    }
+}

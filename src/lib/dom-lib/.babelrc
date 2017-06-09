@@ -1,0 +1,15 @@
+{
+    "presets": [
+        "react",
+        "latest"
+    ],
+    "plugins": [
+        "transform-proto-to-assign",
+        [
+            "transform-es2015-classes",
+            {
+                "loose": true
+            }
+        ]
+    ]
+}

@@ -1,0 +1,72 @@
+.rsuite-CheckListPicker {
+    /* settings */
+    @container-border: 1px solid #CCC;
+    @check-list-hover-bg: @H050;
+    @check-box-size: 17px;
+    @check-box-fg:@H500;
+
+
+    .checkItem {
+        position: relative;
+        padding: 6px 10px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: @check-list-hover-bg;
+            color: #575757;
+        }
+
+        &.check {
+            .checkItem-label::after {
+                font-family: FontAwesome;
+                content: "\f00c";
+                color: @check-box-fg;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: @check-box-size;
+                height: @check-box-size;
+                text-align: center;
+            }
+        }
+
+        .checkItem-checkbox {
+            position: absolute;
+            z-index: -1;
+        }
+
+        .checkItem-label {
+            display: block;
+            position: relative;
+            margin-bottom: 0;
+            padding-left: 2em;
+            outline: 0;
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: @check-box-size;
+                height: @check-box-size;
+                background: #FFF;
+                border: @container-border;
+            }
+        }
+    }
+
+    .checkList {
+        overflow-y: auto;
+    }
+
+    .btnClear{
+        padding: 6px 10px;
+        display: block;
+        cursor: pointer;
+    }
+    hr{
+        margin-bottom: 16px;
+        margin-top: 0;
+    }
+
+}

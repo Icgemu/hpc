@@ -1,0 +1,194 @@
+.rsuite-Picker {
+    /* settings */
+    @container-bg: #FFF;
+    @container-fg: #333;
+    @container-border: 1px solid #CCC;
+    @container-padding: 7px 26px 7px 18px;
+    @container-padding-expand: 7px 26px 8px 18px;
+    @arrow-color: #575757;
+    @arrow-right-spacing: 17px;
+    @arrow-top-spacing: 14px;
+    @arrow-size: 4px;
+    @dropdown-bg: @container-bg;
+    @option-select-bg: @H500;
+    @option-hover-bg: @H050;
+    @option-spacing: 2px;
+
+
+    position: relative;
+    box-sizing: border-box;
+    text-align: left;
+
+    &.disabled{
+        .toggle{
+            background: #f5f5f5 !important;
+            cursor: not-allowed;
+        }
+        opacity: .65;
+    }
+
+    .toggle {
+        position: relative;
+        overflow: hidden;
+        background-color: @container-bg;
+        color: @container-fg;
+        border: @container-border;
+        padding: @container-padding;
+        cursor: pointer;
+        outline: none;
+        width: 100%;
+        text-align: left;
+
+         &-placeholder{
+            white-space: nowrap;
+            margin-right: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            height: 22px;
+        }
+
+        .toggle-arrow {
+            content: '';
+            display: block;
+            position: absolute;
+            right: @arrow-right-spacing;
+            top: @arrow-top-spacing;
+            border-color: @arrow-color transparent transparent;
+            border-width: @arrow-size @arrow-size 0;
+            border-style: solid;
+        }
+
+
+    }
+
+    &.expand{
+        .toggle{
+            z-index: 101;
+            background: @container-bg !important;
+            border-color: #dcdcdc !important;
+            border-bottom-width: 0;
+            padding: @container-padding-expand;
+        }
+
+        &.rsuite-Picker--dropup{
+            .toggle{
+                border-top-width: 0;
+                border-bottom-width: 1px;
+            }
+        }
+    }
+
+
+
+    &.inverse{
+        .toggle {
+            border-color: @B050;
+            background-color: @B050;
+
+            &:hover {
+                background-color: #e8e8e8;
+            }
+
+            &-placeholder {
+                color: @B900;
+            }
+        }
+    }
+
+    .selectList {
+        overflow-y: auto;
+    }
+
+    .selectDropdown {
+        .box-shadow();
+        background-color: @container-bg;
+        border: @container-border;
+        padding: 0px;
+        margin-top: -1px;
+        overflow-y: auto;
+        position: absolute;
+        top: 100%;
+        width: 100%;
+        z-index: 100;
+        left: 0;
+        min-width: 160px;
+
+        &.dropup {
+            top: auto;
+            left: 0;
+            bottom: 37px;
+            border-top: @container-border;
+            border-bottom: 0;
+            .box-shadow(0,-6px,12px,rgba(0,0,0,.175));
+        }
+    }
+
+    .searchBar{
+        padding: 6px 10px;
+    }
+    .searchBar-input {
+        display: block;
+        padding: 4px;
+        border: @container-border;
+        box-sizing: border-box;
+        width: 100%;
+        outline: none;
+    }
+
+    .selectOption {
+        padding: 6px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        text-decoration: none;
+
+        label{
+            .ellipsis-basic();
+        }
+
+        &:hover {
+            background-color: @option-hover-bg;
+            color: #575757;
+        }
+        &:focus{
+            background-color: @option-hover-bg;
+            color: #575757;
+            border: 1px dotted  @option-select-bg;
+        }
+
+        &.active {
+            background-color: @option-select-bg;
+            color: #fff;
+        }
+    }
+
+    .selectGroup {
+        margin-top: @option-spacing;
+        border-bottom: 1px solid #f5f5f5;
+        .selectGroup-title {
+            position: relative;
+            font-weight: bold;
+            color:#000;
+            padding: 8px 10px 6px;
+            .arrow {
+                content: '';
+                display: block;
+                position: absolute;
+                right: @arrow-right-spacing;
+                top: @arrow-top-spacing;
+                border-color: @arrow-color transparent transparent;
+                border-width: @arrow-size @arrow-size 0;
+                border-style: solid;
+            }
+        }
+        &.shrink .arrow{
+            border-color: transparent @arrow-color transparent transparent ;
+            border-width: @arrow-size;
+        }
+        &.shrink .selectOption{
+            display: none
+        }
+    }
+}

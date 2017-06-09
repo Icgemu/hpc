@@ -1,0 +1,186 @@
+.dialog {
+    position: absolute;
+    text-align: left;
+    border-radius: 1px;
+    box-shadow: 0 2px 2px rgba(70, 130, 180, 0.3);
+    background: #fff;
+    border: 1px #4682b4 solid;
+}
+
+.dialogHeader {
+    position: relative;
+    padding: 0 5px;
+    cursor: move;
+    height: 36px;
+    overflow: hidden;
+    background: #4682b4;
+    border-bottom: 1px #4682b4 solid;
+
+    .close {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        cursor: pointer;
+        color: #fff;
+    }
+
+    .title {
+        color: #fff;
+        font-size: 16px;
+    }
+}
+
+.dialogContent {
+    position: relative;
+    margin: 5px;
+}
+
+@mixin alert {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 20;
+    margin-left: -230px;
+    width: 460px;
+    background: #fff;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+}
+
+.alerterror {
+    @include alert;
+    border: 1px #b4464b solid;
+}
+
+.alertinfo {
+    @include alert;
+    border: 1px #4682b4 solid;
+}
+
+.alertwarn {
+    @include alert;
+    border: 1px #b47846 solid;
+}
+
+@mixin alertHeader($bgcolor:#4682b4, $rgb:rgba(70, 130, 180, 0.5),$tlcolor:#fff) {
+    position: relative;
+    padding: 0 5px;
+    height: 36px;
+    overflow: hidden;
+    background: $bgcolor;
+    border-bottom: 1px $bgcolor solid;
+
+    h6 {
+        padding: 8px 4px;
+        margin: 0;
+        border-bottom: 1px dashed $rgb;
+
+        .title {
+            color: $tlcolor;
+            font-size: 16px;
+        }
+    }
+}
+
+.alertHeadererror{
+    @include alertHeader($bgcolor:#b4464b, $rgb:rgba(180,70,75, 0.5),$tlcolor:#fff);
+}
+
+.alertHeaderinfo{
+    @include alertHeader();
+}
+
+.alertHeaderwarn{
+    @include alertHeader($bgcolor:#b47846, $rgb:rgba(180,120,70, 0.5),$tlcolor:#fff);
+}
+
+.alertContent {
+    display: block;
+}
+
+.msg {
+    padding: 15px 10px;
+    max-height: 200px;
+    overflow: auto;
+    font-size: 16px;
+    line-height: 1.4em;
+    word-wrap: break-word;
+    word-break: normal;
+}
+
+.toolBar {
+    margin-top: 10px;
+    text-align: right;
+
+    > ul {
+        float: right;
+        margin: 10px;
+
+        > li {
+            float: left;
+        }
+    }
+}
+
+.taskbar {
+    position: fixed;
+    bottom: -50px;
+    z-index: 30;
+    width: 100%;
+    height: 20px;
+    overflow: hidden;
+    background: #4682b4;
+}
+
+.taskbarContent {
+    position: relative;
+    height: 20px;
+    overflow: hidden;
+    color: #fff;
+
+    > ul {
+        position: absolute;
+        width: 10000px;
+
+        > li {
+            position: relative;
+            float: left;
+            margin-left: 2px;
+            padding-left: 5px;
+            height: 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            background-color: #46b4af;
+
+            &:hover {
+                background: #d9e7f2;
+
+                > .taskbutton {
+                    color: #16669e;
+                }
+            }
+
+            .taskbutton {
+                float: left;
+                padding: 0 25px 0 5px;
+                height: 20px;
+                overflow: hidden;
+                font-size: 14px;
+                line-height: 20px;
+            }
+
+            .close {
+                position: absolute;
+                top: 1px;
+                right: 3px;
+                display: block;
+                padding: 0;
+                width: 14px;
+                height: 14px;
+                overflow: hidden;
+                font-size: 14px;
+                opacity: 1;
+                filter: alpha(opacity=100);
+            }
+        }
+    }
+}

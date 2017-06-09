@@ -1,0 +1,59 @@
+@charset "utf-8";
+html, body, div, span, applet, object, iframe, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li, fieldset, form, input, textarea, select, button, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
+    font-family: "Verdana", "Tahoma", "Lucida Grande", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    font-size: 14px;
+    line-height: 1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Verdana", "Tahoma", "Lucida Grande", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    line-height: 1;
+}
+
+*:focus {
+    outline: 0 !important;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    overflow: hidden;
+    background: #fff;
+}
+
+ul, ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+fieldset {
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px #c3ced5 solid;
+    border-radius: 4px;
+}
+
+legend {
+    display: inline-block;
+    margin-left: 20px;
+    margin-bottom: 5px;
+    padding: 0 5px;
+    width: auto;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: inherit;
+    color: #333333;
+    border: 0;
+}
+a {
+    color: #4682b4;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #315a7d;
+    text-decoration: underline;
+}
