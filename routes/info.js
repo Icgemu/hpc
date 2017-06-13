@@ -156,7 +156,7 @@ router.get('/node', function (req, res, next) {
 });
 
 
-/* GET nodes name. */
+/* GET nodes stats. */
 router.get('/node_stats/:type/:subtype', function (req, res, next) {
   var types = { 'cpu': 'cpu_usage', 'disk': 'disk_usage', 'mem': 'mem_usage' }
   var subtypes = {'1':10,"2":10000000,'3':10}
@@ -186,7 +186,7 @@ router.get('/node_stats/:type/:subtype', function (req, res, next) {
 
 });
 
-/* GET nodes name. */
+/* GET time stats. */
 router.get('/time_stats/:type/:subtype', function (req, res, next) {
   var types = { 'cpu': 'cpu_usage', 'disk': 'disk_usage', 'mem': 'mem_usage' }
   var subtypes = {'1':10,"2":10000000,'3':10}

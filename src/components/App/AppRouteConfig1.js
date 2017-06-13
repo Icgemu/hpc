@@ -29,7 +29,12 @@ export const  AppConfig = {
     ]},
     {group:'Dialog',childs:[
       {path:'c1',title:'Dialog控件',naviTo:DialogExample},
-      {path:'c2',title:'Alert控件',naviTo:AlertExample}
+      {path:'c2',title:'A lert控件',naviTo:AlertExample}
     ]}
+     
+  ],
+  route:[
+    {path:'c3',title:'Dialog控件1',naviTo:DialogExample},
+    {path:'c4',title:'Dialog控件2',naviTo:DialogExample},
   ]
 }

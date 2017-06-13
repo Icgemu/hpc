@@ -1,1 +1,1 @@
-export  *  from './AppRouteConfig1'
+export  *  from './AppRouteConfig2'

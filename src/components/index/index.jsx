@@ -113,13 +113,13 @@ const renderNavi = function(config) {
     } else {
         let left = renderLeftbar(config.path, config.childs)
 
-        let bar = [...config.childs];
-        let parentRoute = config.path
-        bar.map((group, i) => {
-            group.childs.map(route => {
-                route.path = parentRoute + route.path
-            })
-        })
+        // let bar = [...config.childs];
+        // let parentRoute = config.path
+        // bar.map((group, i) => {
+        //     group.childs.map(route => {
+        //         route.path = parentRoute + route.path
+        //     })
+        // })
         let leftbar = <Tabs links={config.childs}/>
         let DerivedContainer = ({
             children,
@@ -131,9 +131,17 @@ const renderNavi = function(config) {
                 </StatefulContainer>
             )
         }
+
+        // let route = [...config.route];
+        // route.map((item, i) => {        
+        //     item.path = parentRoute + item.path           
+        // })
+
+        let hiddenRoute = renderLeftbar(config.path, config.route)
         let root = (
             <Route path={config.path} component={DerivedContainer}>
                 {left}
+                {hiddenRoute}
             </Route>
         );
 

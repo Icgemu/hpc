@@ -39,8 +39,8 @@ export const  AppConfig = {
         ]}
       ],
       router:[
-        {path:'c1',title:'Echarts插件1',naviTo:EchartsApp},
-        {path:'c2',title:'Echarts插件2',naviTo:EchartsApp}
+        {path:'c3',title:'Echarts插件1',naviTo:EchartsApp},
+        {path:'c4',title:'Echarts插件2',naviTo:DatePickerApp}
       ]
     }
   ]
