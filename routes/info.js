@@ -23,7 +23,7 @@ router.get('/q', function (req, res, next) {
     .size(0)
     .build();
   es_client.search({
-    'index': 'hpc',
+    'index': 'hpc.*',
     'body': body
   }, function (err, resp) {
     console.log(JSON.stringify(resp));
@@ -38,6 +38,8 @@ router.get('/q', function (req, res, next) {
 
 });
 
+
+
 /* GET jobs name. */
 router.get('/jobs', function (req, res, next) {
   var body = q()
@@ -46,7 +48,7 @@ router.get('/jobs', function (req, res, next) {
     .size(0)
     .build();
   es_client.search({
-    'index': 'hpc',
+    'index': 'hpc.*',
     'body': body
   }, function (err, resp) {
     console.log(JSON.stringify(resp));
@@ -69,7 +71,7 @@ router.get('/job', function (req, res, next) {
     .size(9999)
     .build();
   es_client.search({
-    'index': 'hpc',
+    'index': 'hpc.*',
     'body': body
   }, function (err, resp) {
     console.log(JSON.stringify(resp));
@@ -126,7 +128,7 @@ router.get('/nodes', function (req, res, next) {
     .size(0)
     .build();
   es_client.search({
-    'index': 'hpc',
+    'index': 'hpc.*',
     'type': 'Node',
     'body': body
   }, function (err, resp) {
@@ -158,9 +160,9 @@ router.get('/node', function (req, res, next) {
 
   // first we do a search, and specify a scroll timeout
   es_client.search({
-    'index': 'hpc',
+    'index': 'hpc.*',
     'type': 'Node',
-    'fields': [types[t]],
+    '_source': [types[t],'time'],
     'scroll': '30s',
     'body': body
   }, function getMoreUntilDone(err, response) {
@@ -170,8 +172,9 @@ router.get('/node', function (req, res, next) {
       res.status(404).json({ 'error': 'Data Not Found!' })
     } else {
       response.hits.hits.forEach(function (hit) {
-        var r = { 't': hit['_timestamp'] }
-        r[types[t]] = hit.fields[types[t]][0];
+        // console.log(JSON.stringify(hit))
+        var r = { 't': hit._source['time'] }
+        r[types[t]] = hit._source[types[t]];
         all_data.push(r);
       });
 
@@ -204,7 +207,7 @@ router.get('/node_stats/:type/:subtype', function (req, res, next) {
     .size(0)
     .build();
   es_client.search({
-    'index': 'hpc',
+    'index': 'hpc.*',
     'type': 'Node',
     'body': body
   }, function (err, resp) {
@@ -234,7 +237,7 @@ router.get('/time_stats/:type/:subtype', function (req, res, next) {
     .size(0)
     .build();
   es_client.search({
-    'index': 'hpc',
+    'index': 'hpc.*',
     'type': 'Node',
     'body': body
   }, function (err, resp) {
