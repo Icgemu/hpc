@@ -7,18 +7,13 @@ import '../echarts/style.less';
 import '../echarts/highlight.less';
 import baseBarOptions from '../echarts/data/bar-base';
 
-
-const events = {
-    click: function (params) {
-        console.log(params);
-    }
-};
-
 class NodeInfo extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { q_name: '', job_name: '' , myoption:{}};
+        this.state = { q_name: '', job_name: '' , myoption:{}, myoption2:{}};
     }
+
+
 
     componentDidMount() {
         fetch('/info/node_stats/cpu/1').then((resp) => {
@@ -36,9 +31,17 @@ class NodeInfo extends React.Component {
                 var buckets = e.bins.buckets;
                 var c = e.doc_count
                 var sum = 0
+                var localdata = {} 
                 buckets.map( k =>{
-                    mydata[k.key].push(k.doc_count/c)
+                    localdata[k.key+''] = (k.doc_count/c)
                     sum += k.doc_count
+                })
+                legend_data.map(e=>{
+                    if(localdata[e] && localdata[e]>=0){
+                        mydata[e].push(localdata[e])
+                    }else{
+                         mydata[e].push(0.0)
+                    }
                 })
                 console.log(c+':'+sum)
             })
@@ -53,7 +56,7 @@ class NodeInfo extends React.Component {
                     stack: '总量',
                     label: {
                         normal: {
-                            show: true,
+                            show: false,
                             position: 'insideRight'
                         }
                     },
@@ -64,6 +67,8 @@ class NodeInfo extends React.Component {
             myoption.legend.data = legend_data
             myoption.series = series
             myoption.xAxis.data = percentiles
+
+            console.log(JSON.stringify(myoption))
             this.setState({
                 myoption
             });
@@ -107,9 +112,33 @@ class NodeInfo extends React.Component {
             width: '100%',
             height: '400px'
         }, this.props.style);
-        var { queue, jobs, q_name, job_name ,myoption} = this.state;
-        var chart = myoption.legend ? <ECharts  option={myoption}  onEvents={events} /> : null
+        var _this = this;
+        var events = {
+            click: function (params) {
+                var node = params.name
+                fetch('/info/node?t=cpu&q='+node).then((resp) => {
+                    return resp.json();
+                }).then((arr) => {
+                    var x =[]
+                    var data = [] 
+                    var queue = arr.map((item) => {
+                       var  t  = new Date()
+                        t.setTime(item.t)
+                        x.push(t.getHours()+':'+t.getMinutes()+':'+t.getSeconds())
+                        data.push(item['cpu_usage'])
+                    })
+                    myoption_node.xAxis.data = x
+                    myoption_node.series[0].data = data
+                    _this.setState({
+                        myoption2:myoption_node
+                    });
+                })
+            }
+        };
 
+        var { queue, jobs, q_name, job_name ,myoption,myoption2} = this.state;
+        var chart = myoption.legend ? <ECharts  option={myoption}  onEvents={events} /> : null
+         var chart1 = myoption2.tooltip ? <ECharts  option={myoption2} /> : null
         return (
 
             <div className="doc-container">
@@ -120,6 +149,7 @@ class NodeInfo extends React.Component {
                     <Picker options={queue} defaultValue={q_name} onChange={(e) => this.handleSelect('q_name', e)} />
                     <Picker options={jobs} defaultValue={job_name} onChange={(e)=>this.handleSelect('job_name',e)}  />
                     {chart}
+                    {chart1}
                 </div>
             </div>
         );
@@ -164,54 +194,6 @@ const myoption =  {
     },
     series: [
         {
-            name: '直接访问',
-            type: 'bar',
-            stack: '总量',
-            label: {
-                normal: {
-                    show: true,
-                    position: 'insideRight'
-                }
-            },
-            data: [320, 302, 301, 334, 390, 330, 320]
-        },
-        {
-            name: '邮件营销',
-            type: 'bar',
-            stack: '总量',
-            label: {
-                normal: {
-                    show: true,
-                    position: 'insideRight'
-                }
-            },
-            data: [120, 132, 101, 134, 90, 230, 210]
-        },
-        {
-            name: '联盟广告',
-            type: 'bar',
-            stack: '总量',
-            label: {
-                normal: {
-                    show: true,
-                    position: 'insideRight'
-                }
-            },
-            data: [220, 182, 191, 234, 290, 330, 310]
-        },
-        {
-            name: '视频广告',
-            type: 'bar',
-            stack: '总量',
-            label: {
-                normal: {
-                    show: true,
-                    position: 'insideRight'
-                }
-            },
-            data: [150, 212, 201, 154, 190, 330, 410]
-        },
-        {
             name: '搜索引擎',
             type: 'bar',
             stack: '总量',
@@ -222,6 +204,26 @@ const myoption =  {
                 }
             },
             data: [820, 832, 901, 934, 1290, 1330, 1320]
+        }
+    ]
+};
+
+const myoption_node =  {
+    tooltip : {
+        trigger: 'axis'
+    },
+    yAxis:  {
+        type: 'value'
+    },
+    xAxis: {
+        type: 'category',
+        data: ['周一','周二','周三','周四','周五','周六','周日']
+    },
+    series: [
+        {
+            name: 'cpu',
+            type: 'line',         
+            data: [320, 302, 301, 334, 390, 330, 320]
         }
     ]
 };
