@@ -78,7 +78,41 @@ router.get('/job', function (req, res, next) {
       res.status(404).json({ 'error': 'Data Not Found!' })
     } else {
       var buckets = resp.hits.hits
-      res.json(buckets)
+      var beginTime = buckets[0]._source.time
+      var endTime = buckets[buckets.length -1]._source.time
+
+      var jobInfo = buckets.filter(e=>{
+        if(e._source.owner) return true
+        return false 
+      })[0]
+
+      var jobStats = buckets.filter(e=>{
+        if(e._source.resources_used_cpupercent) return true
+        return false 
+      })[0]
+
+      // console.log(beginTime)
+      // console.log(endTime)
+      // console.log(JSON.stringify(jobInfo))
+      // console.log(JSON.stringify(jobStats))
+      var r = {}
+      r['st'] = beginTime
+      r['et'] = endTime
+
+      r['queue'] = jobInfo._source.queue
+      r['owner'] = jobInfo._source.owner
+      r['id'] = jobInfo._source.job
+      r['name'] = jobInfo._source.job_name
+
+      r['status'] = jobStats._source.exit_status
+      r['cpu_percent'] = jobStats._source.resources_used_cpupercent
+      r['cpu_t'] = jobStats._source.resources_used_cput
+      r['mem'] = jobStats._source.resources_used_mem
+      r['cpu_n'] = jobStats._source.resources_used_ncpus
+      r['vmem'] = jobStats._source.resources_used_vmem
+      r['walltime'] = jobStats._source.resources_used_walltime
+
+      res.json(r)
     }
   })
 
