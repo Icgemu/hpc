@@ -95,5 +95,32 @@ router.get('/task_by_node', function (req, res, next) {
   
 });
 
+/* GET home page. */
+router.get('/task_vnodes', function (req, res, next) {
+
+  var body = q()
+    .filter('exists', 'exec_vnodes')
+    .aggregation('terms', 'job',{'size':0}, 'node_agg',(e)=>{
+      return e.aggregation('value_count','job','vnodes_count');
+    })
+    .size(0)
+    .build();
+  es_client.search({
+    'index': 'hpc.*',
+    'type' : 'Job',
+    'body': body
+  }, function (err, resp) {
+    console.log(JSON.stringify(resp));
+
+    if (err) {
+      res.status(404).json({ 'error': 'Data Not Found!' })
+    } else {
+      var buckets = resp['aggregations']['node_agg']['buckets']
+      res.json(buckets)
+    }
+  })
+  
+});
+
 
 module.exports = router;
