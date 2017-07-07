@@ -4,39 +4,29 @@ import {PickerExample} from '../pages/picker/index.js'
 import {DatePickerApp} from '../pages/datepicker/deploy/app.js'
 import {EchartsApp} from '../pages/echarts/index.js'
 import {DialogExample,AlertExample} from '../pages/DialogExample'
-import NodeInfo from '../pages/hpc/Nodeinfo'
+import TaskInfo from '../pages/task/TaskInfo'
 
 export const  AppConfig = {
   path:"/",
   naviTo:App,
   navibar:false,
   leftbar:true,
-  indexRoute:'n1',
+  indexRoute:'task1',
   childs:[
-    {group:'概况',childs:[
-      {path:'n1',title:'固定行列表格',naviTo:FixedColumnTableComponent},
-      {path:'n2',title:'分页表格',naviTo:PaginationTableComponent},
-      {path:'n3',title:'可变列宽表格',naviTo:ResizableColumnTableComponent},
-      {path:'n4',title:'自定义行数据表格',naviTo:CustomColumnTableComponent},
-      {path:'n5',title:'树形固表格',naviTo:TreeTableComponent}
+    {group:'任务分析',childs:[
+      {path:'task1',title:'任务概况',naviTo:TaskInfo},
+      {path:'task2',title:'任务列表',naviTo:PaginationTableComponent},
     ]},
-    {group:'任务',childs:[
-      {path:'m1',title:'选择器样例',naviTo:PickerExample}
+    {group:'用户组-用户分析',childs:[
+      {path:'user1',title:'用户概况',naviTo:PickerExample},
+      {path:'user2',title:'用户信息汇总',naviTo:PickerExample}
     ]},
-    {group:'时间选择器',childs:[
-      {path:'b1',title:'时间选择器样例',naviTo:DatePickerApp}
-    ]},
-    {group:'Echarts',childs:[
-      {path:'v1',title:'Echarts插件',naviTo:EchartsApp}
-    ]},
-    {group:'Dialog',childs:[
-      {path:'c1',title:'Dialog控件',naviTo:DialogExample},
-      {path:'c2',title:'A lert控件',naviTo:AlertExample}
-    ]}
-     
+    {group:'节点分析',childs:[
+      {path:'node1',title:'节点概况',naviTo:DatePickerApp},
+      {path:'node2',title:'节点执行情况',naviTo:DatePickerApp}
+    ]} 
   ],
   route:[
-    {path:'c3',title:'NodeInfo1',naviTo:NodeInfo},
-    {path:'c4',title:'Dialog控件2',naviTo:DialogExample},
+    {path:'c4',title:'Dialog控件2',naviTo:DialogExample}
   ]
 }
