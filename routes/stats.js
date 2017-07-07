@@ -4,7 +4,7 @@ var router = express.Router();
 var es = require('elasticsearch');
 
 var es_client = new es.Client({
-  hosts: ['168.168.5.2:19200'],
+  // hosts: ['168.168.5.2:19200'],
   log: ['info', 'debug']
 });
 
@@ -79,7 +79,7 @@ router.get('/task_by_node', function (req, res, next) {
     .size(0)
     .build();
   es_client.search({
-    'index': 'hpc.*',
+    'index': 'hpc',
     'type' : 'Job',
     'body': body
   }, function (err, resp) {
@@ -106,7 +106,7 @@ router.get('/task_vnodes', function (req, res, next) {
     .size(0)
     .build();
   es_client.search({
-    'index': 'hpc.*',
+    'index': 'hpc',
     'type' : 'Job',
     'body': body
   }, function (err, resp) {
