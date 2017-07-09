@@ -5,38 +5,27 @@ import ECharts, { dispatchAction } from 'rsuite-echarts';
 import Picker from 'rsuite-picker';
 import '../echarts/style.less';
 import baseBarOptions from '../echarts/data/bar-base';
-import {bar} from "../hpc/echart"
 
+import {Option1} from "./option/Option1"
+import {Option2} from "./option/Option2"
+import {Option3} from "./option/Option3"
+import {Option4} from "./option/Option4"
+import {Option5} from "./option/Option5"
+import {Option6} from "./option/Option6"
+import {Option7} from "./option/Option7"
 class TaskInfo extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {option1:{}};
+        this.state = {option1:{},option2:{},option3:{},option4:{},option5:{},option6:{},option7:{}};
     }
     componentDidMount() {
-        fetch('/task/job_by_day').then((resp) => {
-            return resp.json();
-        }).then((arr) => {
-            const x_data = [];
-            const x_tmp = {}
-            const status = [0,1,3,4]
-            const series_tmp = status.map((item) =>{
-                return x_data.map(r => {
-                    const x = {}
-                    x[r] = 0;
-                    
-                    return x
-                })
-            })
-
-            arr.forEach((item) => {
-                series_tmp[item.job_status][item.t] = item.cnt
-            })
-
-            const option1 = bar(x_data, series_tmp)
-            this.setState({
-                option1
-            })
-        })
+        Option1(this)
+        Option2(this)
+        Option3(this)
+        Option4(this)
+        Option5(this)
+        Option6(this)
+        Option7(this)
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -45,7 +34,7 @@ class TaskInfo extends React.Component {
     render() {
         let styles = Object.assign({
             width: '100%',
-            height: '400px'
+            height: '300px'
         }, this.props.style);
         // var _this = this;
         // var events = {
@@ -71,16 +60,38 @@ class TaskInfo extends React.Component {
         //     }
         // };
 
-        var {option1} = this.state;
-        var chart = option1.tooltip ? <ECharts  option={option1}/> : null
+        var {option1,option2,option3,option4,option5,option6,option7} = this.state;
+        var chart1 = option1.tooltip ? <ECharts  option={option1}/> : null
+        var chart2 = option2.tooltip ? <ECharts  option={option2}/> : null
+        var chart3 = option3.tooltip ? <ECharts  option={option3}/> : null
+        var chart4 = option4.title ? <ECharts  option={option4}/> : null
+        var chart5 = option5.tooltip ? <ECharts  option={option5}/> : null
+        var chart6 = option6.tooltip ? <ECharts  option={option6}/> : null
+        var chart7 = option7.tooltip ? <ECharts  option={option7}/> : null
         return (
 
             <div className="doc-container">
 
                 <div style={styles}>
-                    <h1>RSuite ECharts</h1>
-                    <p>ECharts for React</p>
-                    {chart}
+                    {chart1}
+                </div>
+                <div style={styles}>
+                    {chart2}
+                </div>
+                <div style={styles}>
+                    {chart3}
+                </div>
+                <div style={styles}>
+                    {chart4}
+                </div>
+                 <div style={styles}>
+                    {chart5}
+                </div>
+                 <div style={styles}>
+                    {chart6}
+                </div>
+                 <div style={styles}>
+                    {chart7}
                 </div>
             </div>
         );

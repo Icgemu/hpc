@@ -19,7 +19,7 @@ const config = {
     entry: [
       'babel-polyfill',
       //'webpack-dev-server/client?http://0.0.0.0:3000',
-      //'webpack/hot/dev-server',
+    //   'webpack/hot/dev-server',
       path.join(__dirname, 'src/components/index/index')
     ],
     output: {

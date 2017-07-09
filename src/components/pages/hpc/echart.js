@@ -1,27 +1,64 @@
-const option =  {
-    tooltip : {
-        trigger: 'axis'
-    },
-    yAxis:  {
-        type: 'value'
-    },
-    xAxis: {
-        type: 'category',
-        data: ['周一','周二','周三','周四','周五','周六','周日']
-    },
-    series: [
-        {
-            name: 'cpu',
-            type: 'line',         
-            data: [320, 302, 301, 334, 390, 330, 320]
-        }
-    ]
-};
+const BarOption = function () {
+    return {
+        tooltip: {
+            trigger: 'axis'
+        },
+        yAxis: {
+            type: 'value'
+        },
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        series: [
+            {
+                name: 'cpu',
+                type: 'line',
+                data: []
+            }
+        ]
+    };
+}
 
+const ScatterOption = function () {
+    return {
+        title: {
+            text: '1990 与 2015 年各国家人均寿命与 GDP'
+        },
+        xAxis: {
+            splitLine: {
+                lineStyle: {
+                    type: 'dashed'
+                }
+            }
+        },
+        yAxis: {
+            splitLine: {
+                lineStyle: {
+                    type: 'dashed'
+                }
+            },
+            scale: true
+        },
+        series: [
+            {
+                name: '1990',
+                data: [],
+                type: 'scatter'
+            }
+        ]
+    };
+}
 
-exports.bar = function(x_data , series_data){
-    const src = Object.assign({},option);
+exports.bar = function (x_data, series_data) {
+    const src = BarOption()
     src.xAxis.data = x_data;
+    src.series = series_data;
+    return src;
+}
+
+exports.scatter = function (series_data) {
+    const src = ScatterOption()
     src.series = series_data;
     return src;
 }
