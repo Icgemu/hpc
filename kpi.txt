@@ -11,18 +11,31 @@ select to_char(st, 'YYYY-MM-DD') as t ,job_status, job_queue, count(*) from job_
 
 with h as(
     select (a1.create_time - a2.st) as tu,
-    (CASE WHEN (a1.create_time - a2.st) >= interval'1 day' THEN '>=1d'
-    WHEN (a1.create_time - a2.st) >= interval'8 hour' THEN '>=8H' 
-    WHEN (a1.create_time - a2.st) >= interval'5 hour' THEN '>=5H'
-    WHEN (a1.create_time - a2.st) >= interval'2 hour' THEN '>=2H'
-    WHEN (a1.create_time - a2.st) >= interval'1 hour' THEN '>=1H'
-    WHEN (a1.create_time - a2.st) >= interval'10 minute' THEN '>=10M'
-    ELSE '<10M' 
+    (CASE 
+        WHEN (a1.create_time - a2.st) >= interval'1 day' THEN '>=1d'
+        WHEN (a1.create_time - a2.st) >= interval'8 hour' THEN '>=8H' 
+        WHEN (a1.create_time - a2.st) >= interval'5 hour' THEN '>=5H'
+        WHEN (a1.create_time - a2.st) >= interval'2 hour' THEN '>=2H'
+        WHEN (a1.create_time - a2.st) >= interval'1 hour' THEN '>=1H'
+        WHEN (a1.create_time - a2.st) >= interval'10 minute' THEN '>=10M'
+        ELSE '<10M' 
     END
     ) as tu_text
     from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3
 )
 select tu_text, count(*) from h group by tu_text;
+//
+with h AS(
+    select a1.job_id, a2.job_walltime, (a1.create_time - a2.st) as tu, extract(DAY FROM (a1.create_time - a2.st)) as d,extract(HOUR FROM (a1.create_time - a2.st)) as h,extract(MINUTE FROM (a1.create_time - a2.st)) as m,
+    (CASE 
+        WHEN (a1.create_time - a2.st) >= interval'1 day' THEN extract(DAY FROM (a1.create_time - a2.st))||'d'
+        WHEN (a1.create_time - a2.st) >= interval'1 hour' THEN extract(HOUR FROM (a1.create_time - a2.st))||'H'
+        ELSE extract(MINUTE FROM (a1.create_time - a2.st))||'M' 
+    END
+    ) as tu_text
+    from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 order by tu
+)
+select tu_text, count(DISTINCT job_id) as cnt from h group by tu_text order by cnt desc;
 
 1.4、任务执行时间分布
 with h as(

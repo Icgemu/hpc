@@ -29,6 +29,7 @@ exports.Option1 = function (_this) {
             return {
                 "type": "bar",
                 "name": mapping[i],
+                "stack":"总数",
                 "data": x_data.map(e => {
                     return item[e]
                 })

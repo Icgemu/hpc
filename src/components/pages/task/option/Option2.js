@@ -48,7 +48,7 @@ exports.Option2 = function (_this) {
         arr.forEach((item) => {
             series_tmp[status[item.tu_text]][item.t] = item.count
         })
-        const mapping = ["大于1天", "大于8小时", "大于1小时", "大于10分钟", "小于十分钟"]
+        const mapping = ["大于1天", "小于1天", "小于8小时", "小于1小时", "小于十分钟"]
         const series_data = series_tmp.map((item, i) => {
             return {
                 "type": "bar",
