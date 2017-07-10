@@ -42,6 +42,8 @@ exports.Option1 = function (_this) {
             "text": "每天任务量执行情况(最近一周)",
             "subtext": "每天任务量（成功|失败|取消|提交|调度中） "
         }
+        option1.xAxis.name = "日期"
+        option1.yAxis.name = "任务数量"
         _this.setState({option1})
     })
 }

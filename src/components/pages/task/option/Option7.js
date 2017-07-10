@@ -18,6 +18,8 @@ exports.Option7 = function (_this) {
         option7.title = {
              "text": "按周几提交任务"
         }
+        option7.xAxis.name = "周几"
+        option7.yAxis.name = "任务数量"
         // _this.setState({option1})
         _this.setState({option7})
     })

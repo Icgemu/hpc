@@ -18,6 +18,8 @@ exports.Option6 = function (_this) {
         option6.title = {
              "text": "任务提交时间点分布"
         }
+        option6.xAxis.name = "时间(小时)"
+        option6.yAxis.name = "任务数量"
         // _this.setState({option1})
         _this.setState({option6})
     })

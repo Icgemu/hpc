@@ -20,6 +20,8 @@ exports.Option4 = function (_this) {
         option4.title = {
              "text": "任务使用CPU资源分布"
         }
+        option4.xAxis.name = "任务序列"
+        option4.yAxis.name = "CPU数量"
         // _this.setState({option1})
         _this.setState({option4})
     })

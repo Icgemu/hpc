@@ -4,9 +4,21 @@ const BarOption = function () {
             trigger: 'axis'
         },
         yAxis: {
-            type: 'value'
+            type: 'value',
+            nameLocation: 'middle',
+            nameGap: 35,
+            nameTextStyle:{
+                fontWeight: 'bold',
+                fontSize: 16
+            }
         },
         xAxis: {
+            nameLocation: 'middle',
+            nameGap: 35,
+            nameTextStyle:{
+                fontWeight: 'bold',
+                fontSize: 16
+            },
             type: 'category',
             data: []
         },
@@ -30,6 +42,12 @@ const ScatterOption = function () {
                 lineStyle: {
                     type: 'dashed'
                 }
+            },
+            nameLocation: 'middle',
+            nameGap: 35,
+            nameTextStyle:{
+                fontWeight: 'bold',
+                fontSize: 16
             }
         },
         yAxis: {
@@ -37,6 +55,12 @@ const ScatterOption = function () {
                 lineStyle: {
                     type: 'dashed'
                 }
+            },
+            nameLocation: 'middle',
+            nameGap: 35,
+            nameTextStyle:{
+                fontWeight: 'bold',
+                fontSize: 16
             },
             scale: true
         },

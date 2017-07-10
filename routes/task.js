@@ -4,10 +4,10 @@ var {Client} = require('pg')
 
 var cli = new Client(
     {
-      // "user": 'postgres',
-      "user": "eshgfuu",
-      // "host": '168.168.5.2',
-      "host": 'localhost',
+      "user": 'postgres',
+      // "user": "eshgfuu",
+      "host": '168.168.5.2',
+      // "host": 'localhost',
       "password": 'oio',
       "database": 'hpc',
       "port": 5432
@@ -110,9 +110,7 @@ router.get('/submit_by_hour', async (req, res, next) => {
     const {rows} = await cli.query("\
       select extract(hour from create_time) as t ,count(*) from job_submit  group by t order by t;\
     ")
-    const rs = rows.map(function(element) {
-      console.log(JSON.stringify(element))
-    }, this);
+    
     res.json(rows)
   } catch (error) {
     res.json({"error":"no data"})
@@ -124,12 +122,49 @@ router.get('/submit_by_weekday', async (req, res, next) => {
     const {rows} = await cli.query("\
 select extract(DOW from create_time) as t ,count(*) from job_submit  group by t order by t;\
     ")
-    const rs = rows.map(function(element) {
-      console.log(JSON.stringify(element))
-    }, this);
+   
     res.json(rows)
   } catch (error) {
     res.json({"error":"no data"})
   }
 });
+
+// router.get('/list', async (req, res, next) => {
+//   try {
+//     const {rows} = await cli.query("\
+//       select count(*) from job_result;\
+//     ")
+//     const rs = rows.map(function(element) {
+//       console.log(JSON.stringify(element))
+//     }, this);
+//     res.json(rows)
+//   } catch (error) {
+//     res.json({"error":"no data"})
+//   }
+// });
+
+router.get('/list/:limit/:offset/:total', async (req, res, next) => {
+  const limit = req.params.limit
+  const offset = req.params.offset
+  var total = parseInt(req.params.total)
+  if(total == 0 ) {
+    const {rows} = await cli.query("\
+      select count(*) from job_result;\
+    ")
+    total = parseInt(rows[0].count)
+  } 
+  try {
+    const {rows} = await cli.query("\
+      select id, job_id, st, et, job_queue, job_owner, job_name, job_exit_status, job_cpupercent, job_cput,  job_mem, job_vmem, job_ncpu, job_walltime, job_status from job_result limit $1 offset $2;\
+    ",[limit, offset])
+    
+    res.status(200).json({
+        "data" : rows,
+        "total" : total
+    })
+  } catch (error) {
+    res.json({"error":"no data"})
+  }
+});
+
 module.exports = router;

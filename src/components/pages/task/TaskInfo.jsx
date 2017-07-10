@@ -34,7 +34,8 @@ class TaskInfo extends React.Component {
     render() {
         let styles = Object.assign({
             width: '100%',
-            height: '300px'
+            height: '300px',
+            borderBottom: '1px dashed #000'
         }, this.props.style);
         // var _this = this;
         // var events = {

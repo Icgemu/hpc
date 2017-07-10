@@ -66,6 +66,8 @@ exports.Option3 = function (_this) {
              "text": "任务执行时长区间",
              "subtext": "按天分析每个时间区间任务数"
         }
+        option3.xAxis.name = "日期"
+        option3.yAxis.name = "任务数量"
         // _this.setState({option1})
         _this.setState({option3})
     })

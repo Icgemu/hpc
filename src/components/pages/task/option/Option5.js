@@ -18,6 +18,8 @@ exports.Option5 = function (_this) {
         option5.title = {
              "text": "任务使用内存资源分布"
         }
+        option5.xAxis.name = "内存使用量区间(GB)"
+        option5.yAxis.name = "任务数量"
         // _this.setState({option1})
         _this.setState({option5})
     })
