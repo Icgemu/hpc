@@ -48,7 +48,7 @@ const PaginationTable = React.createClass({
         fetchDataList(this,activePage)
     },
     render() {
-        const {data,total,displayLength} = this.state;
+        const {data, total, displayLength} = this.state;
         return (
             <div>
                 <Table  height={800} data={data} resizable>

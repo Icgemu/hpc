@@ -63,8 +63,8 @@ exports.Option2 = function (_this) {
             "data": mapping
         }
         option2.title = {
-             "text": "任务等待调度时长区间",
-             "subtext": "按天分析每个时间区间任务数"
+             "text": "任务排队时间",
+             "subtext": "排队时间区间的任务数"
         }
         option2.xAxis.name = "日期"
         option2.yAxis.name = "任务数量"
