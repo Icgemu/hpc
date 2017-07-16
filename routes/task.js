@@ -1,13 +1,14 @@
 const Router = require('express-promise-router')
 const router = new Router()
 var {Client} = require('pg')
+const moment = require("moment")
 
 var cli = new Client(
     {
-      "user": 'postgres',
-      // "user": "eshgfuu",
-      "host": '168.168.5.2',
-      // "host": 'localhost',
+      // "user": 'postgres',
+      "user": "eshgfuu",
+      // "host": '168.168.5.2',
+      "host": 'localhost',
       "password": 'oio',
       "database": 'hpc',
       "port": 5432
@@ -26,6 +27,52 @@ router.get('/job_by_day', async (req, res, next) => {
     res.json({"error":"no data"})
   }
 });
+
+const calTimeList = function(rows){
+    var data = {}
+    var start = rows[0].s;
+    var end = rows[rows.length-1].e
+    start = moment(start).format("YYYY-MM-DD HH:mm")
+    end = moment(end).format("YYYY-MM-DD HH:mm")
+
+    start = moment(start)
+    end = moment(end)
+
+    while (end.diff(start) >= 0){
+      const  t = moment(start).format("YYYY-MM-DD HH:mm")
+      data[t] = 0;
+      start = start.add(1, 'minutes')
+    }
+    for(let i =0; i<rows.length; i++) {
+      const row = rows[i];
+      var s = moment(row.s)
+      var e = moment(row.e)
+      // console.log(s + '->'+ e)
+
+      var  t1 = moment(s.format("YYYY-MM-DD HH:mm"))
+      var  t2 = moment(e.format("YYYY-MM-DD HH:mm"))
+      // console.log(t1 + '->'+ t2)
+
+      if(s.diff(t1) == 0){
+        var c = data[s.format("YYYY-MM-DD HH:mm")] + 1
+        data[s.format("YYYY-MM-DD HH:mm")] = c
+      }
+
+      if(t1.diff(t2) == 0){
+        continue
+      }else{
+        //  console.log("diff > 1 minutes")
+      }
+
+      while(t2.diff(t1) >= 60*1000){
+        t1 = t1.add(1 ,"minutes")
+        const f = t1.format("YYYY-MM-DD HH:mm")
+        var c = data[f] + 1
+        data[f] = c
+      }
+    }
+    return data;
+}
 
 router.get('/wait_time_hist', async (req, res, next) => {
   try {
@@ -48,24 +95,12 @@ router.get('/wait_time_hist', async (req, res, next) => {
     // ")
 
     const {rows} = await cli.query("\
-      with h as(\
-      select to_char(a2.st, 'YYYY-MM-DD') as t ,(a1.create_time - a2.st) as tu,\
-        (CASE \
-          WHEN (a1.create_time - a2.st) >= interval'1 day' THEN '>=1d'\
-          WHEN (a1.create_time - a2.st) >= interval'8 hour' THEN '>=8H' \
-          WHEN (a1.create_time - a2.st) >= interval'1 hour' THEN '>=1H'\
-          WHEN (a1.create_time - a2.st) >= interval'10 minute' THEN '>=10M'\
-          ELSE '<10M' \
-        END\
-        ) as tu_text\
-      from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3\
-      )\
-      select t, tu_text, count(*) as count from h group by t, tu_text order by t;\
+      select a2.job_id as jid , a2.st as s, a1.create_time as e,  count(distinct a2.job_id) ,  count(a2.job_id) \
+      from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
+      group by jid, s,e order by s;\
     ")
-    // const rs = rows.map(function(element) {
-    //   console.log(JSON.stringify(element))
-    // }, this);
-    res.json(rows)
+    const data = calTimeList(rows)
+    res.json(data)
   } catch (error) {
     res.json({"error":"no data"})
   }
@@ -73,25 +108,31 @@ router.get('/wait_time_hist', async (req, res, next) => {
 
 router.get('/run_time_hist', async (req, res, next) => {
   try {
-    const {rows} = await cli.query("\
-      with h as(\
-      select to_char(a2.st, 'YYYY-MM-DD') as t ,\
-          (CASE \
-            WHEN (a2.et - a1.create_time) >= interval'1 day' THEN '>=1d' \
-            WHEN (a2.et - a1.create_time) >= interval'8 hour' THEN '>=8H' \
-            WHEN (a2.et - a1.create_time) >= interval'1 hour' THEN '>=1H' \
-            WHEN (a2.et - a1.create_time) >= interval'10 minute' THEN '>=10M' \
-            ELSE '<10M' \
-          END\
-        ) as tu_text\
-      from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3\
-      )\
-      select t, tu_text, count(*) as count from h group by t, tu_text order by t;\
-    ")
+    // const {rows} = await cli.query("\
+    //   with h as(\
+    //   select to_char(a2.st, 'YYYY-MM-DD') as t ,\
+    //       (CASE \
+    //         WHEN (a2.et - a1.create_time) >= interval'1 day' THEN '>=1d' \
+    //         WHEN (a2.et - a1.create_time) >= interval'8 hour' THEN '>=8H' \
+    //         WHEN (a2.et - a1.create_time) >= interval'1 hour' THEN '>=1H' \
+    //         WHEN (a2.et - a1.create_time) >= interval'10 minute' THEN '>=10M' \
+    //         ELSE '<10M' \
+    //       END\
+    //     ) as tu_text\
+    //   from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3\
+    //   )\
+    //   select t, tu_text, count(*) as count from h group by t, tu_text order by t;\
+    // ")
     // const rs = rows.map(function(element) {
     //   console.log(JSON.stringify(element))
     // }, this);
-    res.json(rows)
+    const {rows} = await cli.query("\
+      select a2.job_id as jid , a2.et as e, a1.create_time as s,  count(distinct a2.job_id) ,  count(a2.job_id) \
+      from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
+      group by jid, s,e order by s;\
+    ")
+    const data = calTimeList(rows)
+    res.json(data)
   } catch (error) {
     res.json({"error":"no data"})
   }
