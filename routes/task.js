@@ -5,10 +5,10 @@ const moment = require("moment")
 
 var cli = new Client(
   {
-    "user": 'postgres',
-    // "user": "eshgfuu",
-    "host": '168.168.5.2',
-    // "host": 'localhost',
+    // "user": 'postgres',
+    "user": "eshgfuu",
+    // "host": '168.168.5.2',
+    "host": 'localhost',
     "password": 'oio',
     "database": 'hpc',
     "port": 5432
@@ -171,7 +171,10 @@ const calTimeList1 = function (rows) {
     const row = rows[i];
     var s = moment(row.s)
     var e = moment(row.e)
-    // console.log(s + '->'+ e)
+    var ncpu = parseInt(row.ncpu)
+    if(ncpu >1000){
+      console.log( 'ncpu ->'+ ncpu)
+    }
 
     var t1 = moment(s.format("YYYY-MM-DD HH:mm"))
     var t2 = moment(e.format("YYYY-MM-DD HH:mm"))
@@ -179,7 +182,8 @@ const calTimeList1 = function (rows) {
 
     if (s.diff(t1) == 0) {
       const f = s.format("YYYY-MM-DD HH:mm")
-      var c = data[f] + row.ncpu
+      
+      var c = data[f] + ncpu
       data[f] = c
     }
 
@@ -192,7 +196,7 @@ const calTimeList1 = function (rows) {
     while (t2.diff(t1) >= dff * 60 * 1000) {
       t1 = t1.add(dff, "minutes")
       const f = t1.format("YYYY-MM-DD HH:mm")
-      var c = data[f] + row.ncpu
+      var c = data[f] + ncpu
       data[f] = c
     }
   }
@@ -211,8 +215,8 @@ router.get('/run_cpus_hist', async (req, res, next) => {
       res.json(rows)
     } else {
       var { rows } = await cli.query("\
-        select a2.job_id as jid , a2.et as e, a1.create_time as s,  sum(a2.job_ncpu) as ncpu \
-        from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
+        select a2.job_id as jid , a2.et as e, a1.create_time as s,  sum(a1.job_run_ncpu) as ncpu \
+        from job_dispatch as a1, job_result as a2 where a2.job_ncpu >= 0 AND a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
         group by jid, s,e order by s;\
       ")
       const dataList = calTimeList1(rows)
@@ -222,6 +226,7 @@ router.get('/run_cpus_hist', async (req, res, next) => {
           "t": item,
           "cnt": dataList[item]
         })
+        // console.log(item +"->"+dataList[item])
         var t =await cli.query("insert into job_run_ncpu(id, cnt) values($1,$2) ;", [item, dataList[item]])
         // console.log(JSON.stringify(t))
       }

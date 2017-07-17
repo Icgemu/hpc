@@ -4,8 +4,8 @@ import fetch from 'isomorphic-fetch';
 import ECharts, { dispatchAction } from 'rsuite-echarts';
 import Picker from 'rsuite-picker';
 import '../echarts/style.less';
+import echarts from 'echarts';
 import baseBarOptions from '../echarts/data/bar-base';
-
 import {Option1} from "./option/Option1"
 import {Option2} from "./option/Option2"
 import {Option3} from "./option/Option3"
@@ -26,9 +26,21 @@ class TaskInfo extends React.Component {
         Option5(this)
         Option6(this)
         Option7(this)
+
+        // ECharts.connect("g1")
     }
 
     componentDidUpdate(prevProps, prevState) {
+        var dom2 = document.getElementById("c2")
+        var dom3 = document.getElementById("c3")
+        if(dom2 && dom3){          
+            setTimeout(()=>{
+                var chart2 = ECharts.getInstanceByDom(dom2)
+                var chart3 = ECharts.getInstanceByDom(dom3)
+                ECharts.connect([chart2,chart3])
+            },100);
+        }
+        
     }
 
     render() {
@@ -62,13 +74,15 @@ class TaskInfo extends React.Component {
         // };
 
         var {option1,option2,option3,option4,option5,option6,option7} = this.state;
-        var chart1 = option1.tooltip ? <ECharts  option={option1}/> : null
-        var chart2 = option2.tooltip ? <ECharts  option={option2}/> : null
-        var chart3 = option3.tooltip ? <ECharts  option={option3}/> : null
-        var chart4 = option4.title ? <ECharts  option={option4}/> : null
-        var chart5 = option5.tooltip ? <ECharts  option={option5}/> : null
-        var chart6 = option6.tooltip ? <ECharts  option={option6}/> : null
-        var chart7 = option7.tooltip ? <ECharts  option={option7}/> : null
+        // var g = "g1"
+        var chart1 = option1.tooltip ? <ECharts id="c1" option={option1}/> : null
+        var chart2 = option2.tooltip ? <ECharts id="c2"  group="g1" option={option2}/> : null
+        var chart3 = option3.tooltip ? <ECharts id="c3"  group="g1" option={option3}/> : null
+        var chart4 = option4.title ? <ECharts  id="c4" option={option4}/> : null
+        var chart5 = option5.tooltip ? <ECharts id="c5"  option={option5}/> : null
+        var chart6 = option6.tooltip ? <ECharts id="c6"  option={option6}/> : null
+        var chart7 = option7.tooltip ? <ECharts id="c7"  option={option7}/> : null
+        
         return (
 
             <div className="doc-container">
