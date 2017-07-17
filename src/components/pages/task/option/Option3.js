@@ -1,6 +1,7 @@
 import {bar} from "../../hpc/echart"
 exports.Option3 = function (_this) {
-    fetch('/task/run_time_hist').then((resp) => {
+    fetch('/task/run_cpus_hist').then((resp) => {
+    // fetch('/task/run_time_hist').then((resp) => {
         return resp.json();
     }).then((arr) => {
         // const x_data = [];
@@ -61,23 +62,43 @@ exports.Option3 = function (_this) {
 
         const x_data = []
         const  data =[]
-        for(var item in arr){
-            x_data.push(item)
-            data.push(arr[item])
-        }
+
+        arr.map(item =>{
+            x_data.push(item.t)
+            data.push(item.cnt)
+        })
+        
+        // for(var item in arr){
+        //     x_data.push(item)
+        //     data.push(arr[item])
+        // }
        const series_data = [{
                 name: '排队数量',
                 data: data,
-                type: 'bar'
+                type: 'line',
+                itemStyle:{
+                    normal:{
+                        color:"#749f83"
+                    }
+                }
             }]
         const option3 = bar(x_data, series_data)
-        
+        option3.dataZoom =  [
+        {
+            id: 'dataZoomX',
+            type: 'slider',
+            xAxisIndex: [0],
+            filterMode: 'filter',
+            start:90,
+            end:100
+        }
+        ],
         option3.title = {
              "text": "运行任务数",
              "subtext": "每个时间点运行任务数量"
         }
         option3.xAxis.name = "时间"
-        option3.yAxis.name = "✅任务数"
+        option3.yAxis.name = "运行任务数"
         // _this.setState({option1})
         _this.setState({option3})
     })

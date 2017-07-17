@@ -42,18 +42,34 @@ exports.Option2 = function (_this) {
 
         const x_data = []
         const  data =[]
-        for(var item in arr){
-            x_data.push(item)
-            data.push(arr[item])
-        }
+
+        arr.map(item =>{
+            x_data.push(item.t)
+            data.push(item.cnt)
+        })
+        // for(var item in arr){
+        //     x_data.push(item)
+        //     data.push(arr[item])
+        // }
        const series_data = [{
                 name: '排队数量',
                 data: data,
-                type: 'bar'
+                type: 'line'
             }]
         const option2 = bar(x_data, series_data)
+
+        option2.dataZoom =  [
+        {
+            id: 'dataZoomX',
+            type: 'slider',
+            xAxisIndex: [0],
+            filterMode: 'filter',
+            start:90,
+            end:100
+        }
+        ],
         option2.title = {
-             "text": "时间",
+             "text": "排队任务数",
              "subtext": "时间点排队任务数"
         }
         option2.xAxis.name = "时间"
