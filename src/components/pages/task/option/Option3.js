@@ -73,7 +73,7 @@ exports.Option3 = function (_this) {
         //     data.push(arr[item])
         // }
        const series_data = [{
-                name: '排队数量',
+                name: 'ncpu数量',
                 data: data,
                 type: 'line',
                 itemStyle:{
@@ -94,11 +94,11 @@ exports.Option3 = function (_this) {
         }
         ],
         option3.title = {
-             "text": "运行任务数",
-             "subtext": "每个时间点运行任务数量"
+             "text": "ncpu总数",
+             "subtext": "每个时间点占用ncpu总数"
         }
         option3.xAxis.name = "时间"
-        option3.yAxis.name = "运行任务数"
+        option3.yAxis.name = "ncpu 总和"
         // _this.setState({option1})
         _this.setState({option3})
     })
