@@ -79,6 +79,12 @@ with h as(
 select q,sum(tu)/count(*), sum(tu) * INTERVAL '1 second' / count(*) from h group by q;
 
 2、用户调度情况汇总(任务数、成功数，失败数、取消数)
+with h as(
+    select EXTRACT(EPOCH FROM(a1.create_time - a2.st)) as tu, a2.job_queue as q, a2.job_owner as o
+    from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3
+)
+select q,o,sum(tu)/count(*) as s, sum(tu) * INTERVAL '1 second' / count(*) as c from h group by q,o  order by q,s DESC;
+
 
 -----------------
 节点分析

@@ -4,7 +4,8 @@ var router = express.Router();
 var es = require('elasticsearch');
 
 var es_client = new es.Client({
-  hosts: ['168.168.5.2:19200'],
+  // hosts: ['168.168.5.2:19200'],
+  hosts:['localhost:9200'],
   log: ['info', 'debug']
 });
 

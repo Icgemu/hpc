@@ -4,7 +4,15 @@ exports.Option8 = function (_this) {
     // fetch('/task/run_time_hist').then((resp) => {
         return resp.json();
     }).then((arr) => {
-        
+        var tran = function(t){
+            t = t.replace(/d/g, "10000")
+            t = t.replace(/H/g, "100")
+            t = t.replace(/M/g, "")
+            return parseInt(t)
+        }
+        arr.sort((a,b) =>{
+            return tran(a.tu_text) - tran(b.tu_text)
+        })
         const x_data = [];
         const series_tmp = []
         arr.forEach((item) => {
@@ -15,7 +23,7 @@ exports.Option8 = function (_this) {
             t = t.replace(/d/g, "天")
             t = t.replace(/H/g, "小时")
             t = t.replace(/M/g, "分钟")
-            t = 
+            
             x_data.push(t)
             series_tmp.push(item.cnt)
         })

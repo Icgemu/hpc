@@ -6,10 +6,10 @@ const moment = require("moment")
 
 var cli = new Client(
   {
-    "user": 'postgres',
-    // "user": "eshgfuu",
-    "host": '168.168.5.2',
-    // "host": 'localhost',
+    // "user": 'postgres',
+    "user": "eshgfuu",
+    // "host": '168.168.5.2',
+    "host": 'localhost',
     "password": 'oio',
     "database": 'hpc',
     "port": 5432
@@ -152,4 +152,68 @@ router.get('/wait_time_hist1', async (req, res, next) => {
     res.status(404).json({ "error": "no data" })
   }
 });
+var mapping = {
+    "safety_cae1_1":"safety_cae",
+    "body_cae":"body_cae",
+    "inte_cae1":"inte_cae",
+    "safety_cae1":"safety_cae",
+    "safety_cae2":"safety_cae",
+    "nvh_cae1":"nvh_cae",
+    "pwt_cae1":"pwt_cae",
+    "chassis_cae1":"chassis_cae",
+    "pwt_cae3":"pwt_cae",
+    "nvh_cae2":"nvh_cae",
+    "newenergy_cae1":"newenergy_cae",
+    "pwt_cae2":"pwt_cae",
+    "vip":"vip",
+    "nvh_cae3":"nvh_cae",
+    "pwt_cae4":"pwt_cae",
+    "chassis_cae4":"chassis_cae",
+    "chassis_cae2":"chassis_cae",
+    "chassis_cae3":"chassis_cae",
+    "newenergy_cae3":"newenergy_cae"
+}
+
+router.get('/queue_jobs', async (req, res, next) => {
+  try {
+    const { rows } = await cli.query("\
+select job_queue,job_status,count(*) from job_result group by job_queue,job_status order by job_queue,job_status;\
+    ")
+    // const rs = rows.map(function(element) {
+    //   console.log(JSON.stringify(element))
+    // }, this);
+    const data = rows.map(item =>{
+        return {
+            "t":mapping[item.job_queue],
+            "status":item.job_status,
+            "cnt":item.count
+        }
+    })
+    res.json(data)
+  } catch (error) {
+    res.json({ "error": "no data" })
+  }
+});
+
+router.get('/owner_jobs', async (req, res, next) => {
+  try {
+    const { rows } = await cli.query("\
+select job_owner,job_status,count(*) as cnt from job_result group by job_owner,job_status order by cnt DESC;\
+    ")
+    // const rs = rows.map(function(element) {
+    //   console.log(JSON.stringify(element))
+    // }, this);
+    const data = rows.map(item =>{
+        return {
+            "t":item.job_owner,
+            "status":item.job_status,
+            "cnt":item.cnt
+        }
+    })
+    res.json(data)
+  } catch (error) {
+    res.json({ "error": "no data" })
+  }
+});
+
 module.exports = router;
