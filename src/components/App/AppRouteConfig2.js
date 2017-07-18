@@ -6,6 +6,8 @@ import {EchartsApp} from '../pages/echarts/index.js'
 import {DialogExample,AlertExample} from '../pages/DialogExample'
 import TaskInfo from '../pages/task/TaskInfo'
 import TaskList from '../pages/task/TaskList'
+import UserInfo from '../pages/user/UserInfo'
+import NodeInfo from '../pages/node/NodeInfo'
 export const  AppConfig = {
   path:"/",
   naviTo:App,
@@ -18,12 +20,12 @@ export const  AppConfig = {
       {path:'task2',title:'任务列表',naviTo:TaskList},
     ]},
     {group:'用户组-用户分析',childs:[
-      {path:'user1',title:'用户概况',naviTo:PickerExample},
-      {path:'user2',title:'用户信息汇总',naviTo:PickerExample}
+      {path:'user1',title:'用户概况',naviTo:UserInfo},
+      {path:'user2',title:'用户信息汇总',naviTo:TaskList}
     ]},
     {group:'节点分析',childs:[
-      {path:'node1',title:'节点概况',naviTo:DatePickerApp},
-      {path:'node2',title:'节点执行情况',naviTo:DatePickerApp}
+      {path:'node1',title:'节点概况',naviTo:NodeInfo},
+      {path:'node2',title:'节点执行情况',naviTo:TaskList}
     ]} 
   ],
   route:[

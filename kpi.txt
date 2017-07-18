@@ -94,3 +94,8 @@ group by n order by cnt DESC
 es
 1.3、
 2、节点调度情况汇总(任务数、成功数，失败数、取消数)
+
+ var { rows } = await cli.query("\
+      select id as t, queue, cnt \
+      from queue_job_wait_count where queue in ($1,$2,$3,$4,$5,$6)  AND cnt >0 order by id ;\
+    ",["safety_cae1_1","body_cae","inte_cae1","safety_cae1","nvh_cae1","pwt_cae1"])

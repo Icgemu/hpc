@@ -5,10 +5,10 @@ const moment = require("moment")
 
 var cli = new Client(
   {
-    // "user": 'postgres',
-    "user": "eshgfuu",
-    // "host": '168.168.5.2',
-    "host": 'localhost',
+    "user": 'postgres',
+    // "user": "eshgfuu",
+    "host": '168.168.5.2',
+    // "host": 'localhost',
     "password": 'oio',
     "database": 'hpc',
     "port": 5432
@@ -108,6 +108,30 @@ router.get('/wait_time_hist', async (req, res, next) => {
       await cli.query("COMMIT");
       res.json(data)
     }
+
+  } catch (error) {
+    console.log(JSON.stringify(error))
+    res.status(404).json({ "error": "no data" })
+  }
+});
+
+router.get('/wait_time_hist1', async (req, res, next) => {
+  try {
+      var { rows } = await cli.query("\
+      with h AS(\
+    select a1.job_id, a2.job_walltime, (a1.create_time - a2.st) as tu, extract(DAY FROM (a1.create_time - a2.st)) as d,extract(HOUR FROM (a1.create_time - a2.st)) as h,extract(MINUTE FROM (a1.create_time - a2.st)) as m,\
+    (CASE \
+        WHEN (a1.create_time - a2.st) >= interval'1 day' THEN extract(DAY FROM (a1.create_time - a2.st))||'d'\
+        WHEN (a1.create_time - a2.st) >= interval'1 hour' THEN extract(HOUR FROM (a1.create_time - a2.st))||'H'\
+        ELSE extract(MINUTE FROM (a1.create_time - a2.st))||'M' \
+    END\
+    ) as tu_text\
+    from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 order by tu\
+    )\
+    select tu_text, count(DISTINCT job_id) as cnt from h group by tu_text order by cnt desc;\
+    ")
+      
+      res.json(rows)
 
   } catch (error) {
     console.log(JSON.stringify(error))
