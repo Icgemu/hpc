@@ -7,10 +7,10 @@ const moment = require("moment")
 
 var cli = new Client(
     {
-        // "user": 'postgres',
-        "user": "eshgfuu",
-        // "host": '168.168.5.2',
-        "host": 'localhost',
+        "user": 'postgres',
+        // "user": "eshgfuu",
+        "host": '168.168.5.2',
+        // "host": 'localhost',
         "password": 'oio',
         "database": 'hpc',
         "port": 5432

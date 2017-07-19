@@ -1,6 +1,6 @@
 import {bar} from "../../hpc/echart"
-exports.Option1 = function (_this) {
-    fetch('/user/wait_time_hist').then((resp) => {
+exports.Option2 = function (_this) {
+    fetch('/node/node_jobs').then((resp) => {
         return resp.json();
     }).then((arr) => {
         const x_data = [];
@@ -17,7 +17,6 @@ exports.Option1 = function (_this) {
                     }else{
                         queue[item.queue][item.t] = parseInt(item.cnt)
                     }
-                    
                 } else{
                     queue[item.queue] = {}
                     queue[item.queue][item.t] = parseInt(item.cnt)
@@ -39,9 +38,9 @@ exports.Option1 = function (_this) {
                 }
             }
              series_data.push({
-                "type": "line",
+                "type": "bar",
                 "name": q,
-               // "stack":"总数",
+               "stack":"总数",
                // "areaStyle": {normal: {}},
                 "data": y_data
             })
@@ -75,11 +74,11 @@ exports.Option1 = function (_this) {
         //         })
         //     }
         // })
-        const option1 = bar(x_data, series_data)
-        option1.legend = {
+        const option2 = bar(x_data, series_data)
+        option2.legend = {
             "data": mapping
         }
-        option1.dataZoom =  [
+        option2.dataZoom =  [
         {
             id: 'dataZoomX',
             type: 'slider',
@@ -89,11 +88,12 @@ exports.Option1 = function (_this) {
             end:100
         }
         ],
-        option1.title = {
-            "text": "专业组排队数量"
+        option2.title = {
+            "text": "节点承载计算任务数",
+            "subtext":"承载不同专业组的任务数量"
         }
-        option1.xAxis.name = "时间"
-        option1.yAxis.name = "排队数量"
-        _this.setState({option1})
+        option2.xAxis.name = "节点"
+        option2.yAxis.name = "任务数"
+        _this.setState({option2})
     })
 }

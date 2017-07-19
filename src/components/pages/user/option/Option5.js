@@ -1,8 +1,19 @@
 import {bar} from "../../hpc/echart"
-exports.Option1 = function (_this) {
-    fetch('/user/wait_time_hist').then((resp) => {
+exports.Option5 = function (_this) {
+    fetch('/user/queue_wait_time_hist').then((resp) => {
         return resp.json();
     }).then((arr) => {
+
+        var tran = function(t){
+            t = t.replace(/d/g, "10000")
+            t = t.replace(/H/g, "100")
+            t = t.replace(/M/g, "")
+            return parseInt(t)
+        }
+        arr.sort((a,b) =>{
+            return tran(a.t) - tran(b.t)
+        })
+
         const x_data = [];
         const x_tmp = {}
         const queue = {}
@@ -17,7 +28,6 @@ exports.Option1 = function (_this) {
                     }else{
                         queue[item.queue][item.t] = parseInt(item.cnt)
                     }
-                    
                 } else{
                     queue[item.queue] = {}
                     queue[item.queue][item.t] = parseInt(item.cnt)
@@ -39,9 +49,9 @@ exports.Option1 = function (_this) {
                 }
             }
              series_data.push({
-                "type": "line",
+                "type": "bar",
                 "name": q,
-               // "stack":"总数",
+               "stack":"总数",
                // "areaStyle": {normal: {}},
                 "data": y_data
             })
@@ -75,11 +85,11 @@ exports.Option1 = function (_this) {
         //         })
         //     }
         // })
-        const option1 = bar(x_data, series_data)
-        option1.legend = {
+        const option5 = bar(x_data, series_data)
+        option5.legend = {
             "data": mapping
         }
-        option1.dataZoom =  [
+        option5.dataZoom =  [
         {
             id: 'dataZoomX',
             type: 'slider',
@@ -89,11 +99,12 @@ exports.Option1 = function (_this) {
             end:100
         }
         ],
-        option1.title = {
-            "text": "专业组排队数量"
+        option5.title = {
+            "text": "专业组排队时长任务分布",
+            "subtext":"分专业组"
         }
-        option1.xAxis.name = "时间"
-        option1.yAxis.name = "排队数量"
-        _this.setState({option1})
+        option5.xAxis.name = "时间"
+        option5.yAxis.name = "任务数"
+        _this.setState({option5})
     })
 }

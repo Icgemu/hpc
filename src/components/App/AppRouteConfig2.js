@@ -7,7 +7,10 @@ import {DialogExample,AlertExample} from '../pages/DialogExample'
 import TaskInfo from '../pages/task/TaskInfo'
 import TaskList from '../pages/task/TaskList'
 import UserInfo from '../pages/user/UserInfo'
+import UserList from '../pages/user/UserList'
 import NodeInfo from '../pages/node/NodeInfo'
+
+
 export const  AppConfig = {
   path:"/",
   naviTo:App,
@@ -21,7 +24,7 @@ export const  AppConfig = {
     ]},
     {group:'用户组-用户分析',childs:[
       {path:'user1',title:'用户概况',naviTo:UserInfo},
-      {path:'user2',title:'用户信息汇总',naviTo:TaskList}
+      {path:'user2',title:'用户信息汇总',naviTo:UserList}
     ]},
     {group:'节点分析',childs:[
       {path:'node1',title:'节点概况',naviTo:NodeInfo},

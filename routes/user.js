@@ -6,10 +6,10 @@ const moment = require("moment")
 
 var cli = new Client(
   {
-    // "user": 'postgres',
-    "user": "eshgfuu",
-    // "host": '168.168.5.2',
-    "host": 'localhost',
+    "user": 'postgres',
+    // "user": "eshgfuu",
+    "host": '168.168.5.2',
+    // "host": 'localhost',
     "password": 'oio',
     "database": 'hpc',
     "port": 5432
@@ -198,14 +198,14 @@ select job_queue,job_status,count(*) from job_result group by job_queue,job_stat
 router.get('/owner_jobs', async (req, res, next) => {
   try {
     const { rows } = await cli.query("\
-select job_owner,job_status,count(*) as cnt from job_result group by job_owner,job_status order by cnt DESC;\
+select job_queue, job_owner,job_status,count(*) as cnt from job_result group by job_queue, job_owner,job_status order by cnt DESC;\
     ")
     // const rs = rows.map(function(element) {
     //   console.log(JSON.stringify(element))
     // }, this);
     const data = rows.map(item =>{
         return {
-            "t":item.job_owner,
+            "t":item.job_owner+"("+ mapping[item.job_queue]+")",
             "status":item.job_status,
             "cnt":item.cnt
         }
@@ -214,6 +214,77 @@ select job_owner,job_status,count(*) as cnt from job_result group by job_owner,j
   } catch (error) {
     res.json({ "error": "no data" })
   }
+});
+const formatT = function (t) {
+    var hour = t['hours'] ? t["hours"] : 0;
+    var minutes = t['minutes'] ? t["minutes"] : 0;
+    var seconds = t['seconds'] ? t["seconds"] : 0;
+    return hour + "小时" + minutes + "分" + seconds + "秒"
+}
+router.get('/owner_jobs_wait_time', async (req, res, next) => {
+  try {
+    const { rows } = await cli.query("\
+        with h as(\
+            select EXTRACT(EPOCH FROM(a1.create_time - a2.st)) as tu, a2.job_queue as queue, a2.job_owner as owner, a2.job_id as jid\
+            from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 group by tu,queue,owner,jid\
+        )\
+        select queue, owner, avg(tu) * INTERVAL '1 second' as t, count(*) as count ,\
+        max(tu) * INTERVAL '1 second' as mxt,\
+        min(tu) * INTERVAL '1 second' as mint\
+        from h group by queue, owner  order by t DESC;\
+    ")
+    
+    const data = rows.map(item =>{
+        // var t =  item.t;
+        // var hour = t['hours']?t["hours"]:0;
+        // var minutes = t['minutes']?t["minutes"]:0;
+        // var seconds = t['seconds']?t["seconds"]:0;
+        return {
+            "queue":item.queue,
+            "owner":item.owner,
+            "avg":formatT(item.t) ,
+            "max":formatT(item.mxt) ,
+            "min":formatT(item.mint) ,
+            "count":item.count
+        }
+    })
+    res.json(data)
+  } catch (error) {
+      console.log(JSON.stringify(error))
+    res.json({ "error": "no data" })
+  }
+});
+
+
+router.get('/queue_wait_time_hist', async (req, res, next) => {
+    try {
+        var { rows } = await cli.query("\
+      with h AS(\
+    select a2.job_queue, a1.job_id, a2.job_walltime, (a1.create_time - a2.st) as tu, extract(DAY FROM (a1.create_time - a2.st)) as d,extract(HOUR FROM (a1.create_time - a2.st)) as h,extract(MINUTE FROM (a1.create_time - a2.st)) as m,\
+    (CASE \
+        WHEN (a1.create_time - a2.st) >= interval'1 day' THEN extract(DAY FROM (a1.create_time - a2.st))||'d'\
+        WHEN (a1.create_time - a2.st) >= interval'1 hour' THEN extract(HOUR FROM (a1.create_time - a2.st))||'H'\
+        ELSE extract(MINUTE FROM (a1.create_time - a2.st))||'M' \
+    END\
+    ) as tu_text\
+    from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 order by tu\
+    )\
+    select tu_text, job_queue,count(DISTINCT job_id) as cnt from h group by tu_text,job_queue order by cnt desc;\
+    ")
+
+        // res.json(rows)
+        const data = rows.map(item => {
+            return {
+                "queue": mapping[item.job_queue],
+                "t": item.tu_text,
+                "cnt": item.cnt
+            }
+        })
+        res.json(data)
+    } catch (error) {
+        console.log(JSON.stringify(error))
+        res.status(404).json({ "error": "no data" })
+    }
 });
 
 module.exports = router;

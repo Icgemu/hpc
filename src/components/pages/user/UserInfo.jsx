@@ -10,6 +10,7 @@ import {Option1} from "./option/Option1"
 import {Option2} from "./option/Option2"
 import {Option3} from "./option/Option3"
 import {Option4} from "./option/Option4"
+import {Option5} from "./option/Option5"
 
 class UserInfo extends React.Component {
     constructor(props) {
@@ -21,6 +22,7 @@ class UserInfo extends React.Component {
         Option2(this)
         Option3(this)
         Option4(this)
+        Option5(this)
         // ECharts.connect("g1")
     }
 
@@ -73,7 +75,7 @@ class UserInfo extends React.Component {
         var chart2 = option2.tooltip ? <ECharts id="u2"  group="g2" option={option2}/> : null
         var chart3 = option3.tooltip ? <ECharts id="u3"  group="g1" option={option3}/> : null
         var chart4 = option4.tooltip ? <ECharts id="u4" option={option4}/> : null
-        // var chart5 = option5.tooltip ? <ECharts id="c5"  option={option5}/> : null
+        var chart5 = option5.tooltip ? <ECharts id="u5"  option={option5}/> : null
         // var chart6 = option6.tooltip ? <ECharts id="c6"  option={option6}/> : null
         // var chart7 = option7.tooltip ? <ECharts id="c7"  option={option7}/> : null
         // var chart8 = option8.tooltip ? <ECharts id="c8"  option={option8}/> : null
@@ -91,6 +93,9 @@ class UserInfo extends React.Component {
                 </div>
                 <div style={styles}>
                     {chart4}
+                </div>
+                <div style={styles}>
+                    {chart5}
                 </div>
                 {/* <div style={styles}>
                     {chart2}

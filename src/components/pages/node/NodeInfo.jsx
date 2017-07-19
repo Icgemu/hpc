@@ -7,6 +7,9 @@ import '../echarts/style.less';
 import echarts from 'echarts';
 import baseBarOptions from '../echarts/data/bar-base';
 import {Option1} from "./option/Option1"
+import {Option2} from "./option/Option2"
+import {Option3} from "./option/Option3"
+
 class NodeInfo extends React.Component {
     constructor(props) {
         super(props);
@@ -14,7 +17,8 @@ class NodeInfo extends React.Component {
     }
     componentDidMount() {
         Option1(this)
-        // Option2(this)
+        Option2(this)
+        Option3(this)
         // ECharts.connect("g1")
     }
 
@@ -64,8 +68,8 @@ class NodeInfo extends React.Component {
         var {option1,option2,option3,option4,option5,option6,option7,option8} = this.state;
         // var g = "g1"
         var chart1 = option1.tooltip ? <ECharts id="n1" group="n2" option={option1}/> : null
-        // var chart2 = option2.tooltip ? <ECharts id="u2"  group="g2" option={option2}/> : null
-        // var chart3 = option3.tooltip ? <ECharts id="c3"  group="g1" option={option3}/> : null
+        var chart2 = option2.tooltip ? <ECharts id="n2"  group="g2" option={option2}/> : null
+        var chart3 = option3.tooltip ? <ECharts id="n3"  group="g1" option={option3}/> : null
         // var chart4 = option4.title ? <ECharts  id="c4" option={option4}/> : null
         // var chart5 = option5.tooltip ? <ECharts id="c5"  option={option5}/> : null
         // var chart6 = option6.tooltip ? <ECharts id="c6"  option={option6}/> : null
@@ -77,6 +81,12 @@ class NodeInfo extends React.Component {
                 
                 <div style={styles}>
                     {chart1}
+                </div>
+                <div style={styles}>
+                    {chart3}
+                </div>
+                <div style={styles}>
+                    {chart2}
                 </div>
                 {/* <div style={styles}>
                     {chart2}
