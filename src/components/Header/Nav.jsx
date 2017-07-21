@@ -1,30 +1,54 @@
 import React from 'react';
 import styles from './header.scss';
+import DatePicker from 'rsuite-datepicker';
+import 'rsuite-datepicker/style/Default.less';
+
 class Nav extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
     }
 
+    changeTime(flag, d){
+        let data = {}
+        data[flag] = d;
+        this.setState(data)
+    }
+
     render() {
         let badge = `badge ${styles.badge} `;
         let drop = ` dropdown-menu ${styles.dropdown}`;
 
+        let wid = Object.assign({
+            width: '250px',
+        }, this.props.style);
+
         return (
             <div className={styles.headerInfo}>
+                <div style={wid}>
+                    <DatePicker
+                        dateFormat="YYYY-MM-DD"
+                        autoClose = "true"
+                        onChange={date => this.changeTime('st',date)}
+                    />
+                    ~
+                    <DatePicker
+                        dateFormat="YYYY-MM-DD"
+                        autoClose = "true"
+                        onChange={date => this.changeTime('et',date)}
+                    />
+
+                </div>
                 <ul className={styles.headerInfoList}>
                     <li className="datetime">
-                        <div>
-                            <span id="bjui-date"></span>
-                            <span id="bjui-clock"></span>
-                        </div>
+
                     </li>
-                    <li>
+                    {/* <li>
                         <a href="#">消息
                             <span className={badge}>4</span>
                         </a>
-                    </li>
-                    <li className="dropdown">
+                    </li> */}
+                    {/* <li className="dropdown">
                         <a href="#" className="dropdown-toggle" data-toggle="dropdown">我的账户
                             <span className="caret"></span>
                         </a>
@@ -43,7 +67,7 @@ class Nav extends React.Component {
                                     注销登陆</a>
                             </li>
                         </ul>
-                    </li>
+                    </li> */}
                 </ul>
             </div>
         );

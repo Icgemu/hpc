@@ -64,7 +64,7 @@ exports.Option1 = function (_this) {
             type: 'slider',
             xAxisIndex: [0],
             filterMode: 'filter',
-            start:90,
+            start:95,
             end:100
         }
         ],

@@ -23,15 +23,15 @@ class NodeInfo extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        // var dom2 = document.getElementById("u1")
-        // var dom3 = document.getElementById("u2")
-        // if(dom2 && dom3){          
-        //     setTimeout(()=>{
-        //         var chart2 = ECharts.getInstanceByDom(dom2)
-        //         var chart3 = ECharts.getInstanceByDom(dom3)
-        //         ECharts.connect([chart2,chart3])
-        //     },100);
-        // }
+        var dom2 = document.getElementById("n1")
+        var dom3 = document.getElementById("n3")
+        if(dom2 && dom3){          
+            setTimeout(()=>{
+                var chart2 = ECharts.getInstanceByDom(dom2)
+                var chart3 = ECharts.getInstanceByDom(dom3)
+                ECharts.connect([chart2,chart3])
+            },100);
+        }
         
     }
 
@@ -68,8 +68,8 @@ class NodeInfo extends React.Component {
         var {option1,option2,option3,option4,option5,option6,option7,option8} = this.state;
         // var g = "g1"
         var chart1 = option1.tooltip ? <ECharts id="n1" group="n2" option={option1}/> : null
-        var chart2 = option2.tooltip ? <ECharts id="n2"  group="g2" option={option2}/> : null
-        var chart3 = option3.tooltip ? <ECharts id="n3"  group="g1" option={option3}/> : null
+        var chart2 = option2.tooltip ? <ECharts id="n2"  group="n2" option={option2}/> : null
+        var chart3 = option3.tooltip ? <ECharts id="n3"  option={option3}/> : null
         // var chart4 = option4.title ? <ECharts  id="c4" option={option4}/> : null
         // var chart5 = option5.tooltip ? <ECharts id="c5"  option={option5}/> : null
         // var chart6 = option6.tooltip ? <ECharts id="c6"  option={option6}/> : null
@@ -82,7 +82,7 @@ class NodeInfo extends React.Component {
                 <div style={styles}>
                     {chart1}
                 </div>
-                <div style={styles}>
+                <div style={styles} width="400px">
                     {chart3}
                 </div>
                 <div style={styles}>

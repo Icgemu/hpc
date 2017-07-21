@@ -1,6 +1,6 @@
 import {bar} from "../../hpc/echart"
-exports.Option3 = function (_this) {
-    fetch('/node/node_stats/cpu').then((resp) => {
+exports.Option6 = function (_this) {
+    fetch('/user/queue_mem_hist').then((resp) => {
         return resp.json();
     }).then((arr) => {
         const x_data = [];
@@ -17,6 +17,7 @@ exports.Option3 = function (_this) {
                     }else{
                         queue[item.queue][item.t] = parseInt(item.cnt)
                     }
+                    
                 } else{
                     queue[item.queue] = {}
                     queue[item.queue][item.t] = parseInt(item.cnt)
@@ -26,21 +27,8 @@ exports.Option3 = function (_this) {
         for(var item in x_tmp){
             x_data.push(item)
         }
-        const mapping = []
-
-        for(var q in queue){
-            mapping.push(q)
-        }
-        mapping.sort((a,b) => {
-            a = a.replace(/compute/m,"")
-            b = b.replace(/compute/m,"")
-            return parseInt(a) - parseInt(b)
-        })
         const series_data = []
-        for(var i=0; i<mapping.length;i++){
-            const q = mapping[i]
-        
-        //for(var q in queue){
+        for(var q in queue){
             var data = queue[q];
             var y_data = []
             for(var item in x_tmp){
@@ -51,14 +39,18 @@ exports.Option3 = function (_this) {
                 }
             }
              series_data.push({
-                "type": "line",
+                "type": "bar",
                 "name": q,
-            //    "stack":"总数",
+               "stack":"总数",
             //    "areaStyle": {normal: {}},
                 "data": y_data
             })
         }
-        
+        const mapping = []
+
+        for(var q in queue){
+            mapping.push(q)
+        }
         // const status = [0, 1, 2, 3, 4]
         // const series_tmp = status.map((item) => {
         //     return x_data.map(r => {
@@ -83,33 +75,23 @@ exports.Option3 = function (_this) {
         //         })
         //     }
         // })
-        const option3 = bar(x_data, series_data)
-
-        const selected = {} 
-        mapping.forEach(e=>{
-            selected[e] = false
-        })
-        selected[mapping[0]] = true;
-        option3.legend = {
-            "data": mapping,
-            "selected":selected
+        const option6 = bar(x_data, series_data)
+        option6.legend = {
+            "data": mapping
         }
-        option3.dataZoom =  [
+        option6.dataZoom =  [
         {
             id: 'dataZoomX',
             type: 'slider',
             xAxisIndex: [0],
-            filterMode: 'filter',
-            start:95,
-            end:100
+            filterMode: 'filter'
         }
         ],
-        option3.title = {
-            "text": "各节点CPU平均值",
-            "subtext":"分不同节点分析"
+        option6.title = {
+            "text": "内存区间里每个专业组任务数"
         }
-        option3.xAxis.name = "时间"
-        option3.yAxis.name = "cpu平均值"
-        _this.setState({option3})
+        option6.xAxis.name = "内存区间"
+        option6.yAxis.name = "任务数量"
+        _this.setState({option6})
     })
 }

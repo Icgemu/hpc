@@ -109,7 +109,7 @@ router.get('/node_stats/:type', function (req, res, next) {
           data.push({
                "t":t,
               "queue":node,
-              "value":value
+              "cnt":value
           })
         })
       }, this);

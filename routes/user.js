@@ -287,4 +287,38 @@ router.get('/queue_wait_time_hist', async (req, res, next) => {
     }
 });
 
+router.get('/queue_mem_hist', async (req, res, next) => {
+    try {
+        var { rows } = await cli.query("\
+      with h as (\
+        select ceil((to_number(replace(job_mem,'kb',''),'9999999999999999999')/1000/1000)) as t, \
+            job_queue, count(*) as cnt  from job_result where job_status <3  AND job_mem !='' group by t ,job_queue order by t\
+        )\
+        select\
+            (CASE WHEN t <= 8 THEN '0~8G'\
+            WHEN t <= 16 THEN '8~16G' \
+            WHEN t <= 32 THEN '16~32G'\
+            WHEN t <= 64 THEN '32~64G'\
+            WHEN t <= 128 THEN '64~128G'\
+            ELSE '128G ~ 以上' \
+            END\
+            ) as tu_text ,job_queue, sum(cnt) as cnt \
+        from h  group by tu_text,job_queue order by tu_text,job_queue ; \
+")
+
+        // res.json(rows)
+        const data = rows.map(item => {
+            return {
+                "queue": mapping[item.job_queue],
+                "t": item.tu_text,
+                "cnt": item.cnt
+            }
+        })
+        res.json(data)
+    } catch (error) {
+        console.log(JSON.stringify(error))
+        res.status(404).json({ "error": "no data" })
+    }
+});
+
 module.exports = router;
