@@ -2,20 +2,28 @@ const Router = require('express-promise-router')
 const router = new Router()
 var { Client } = require('pg')
 const moment = require("moment")
-
+var es = require('elasticsearch');
 
 var cli = new Client(
   {
-    "user": 'postgres',
-    // "user": "eshgfuu",
-    "host": '168.168.5.2',
-    // "host": 'localhost',
+    // "user": 'postgres',
+    "user": "eshgfuu",
+    // "host": '168.168.5.2',
+    "host": 'localhost',
     "password": 'oio',
     "database": 'hpc',
     "port": 5432
   }
 );
 cli.connect()
+
+var es_client = new es.Client({
+  // hosts: ['168.168.5.2:19200'],
+  hosts:['localhost:9200'],
+  log: ['info', 'debug']
+});
+
+var q = require("bodybuilder")
 
 const calTimeList = function (rows) {
     var dff = 1;
@@ -68,8 +76,67 @@ const calTimeList = function (rows) {
     console.log(time3.diff(time2) / 1000)
     return data;
 }
-
 router.get('/wait_time_hist', async (req, res, next) => {
+  var body = q()
+    //.filter('term', 'node', types[req.params['type']])
+    // .filter('range', types[req.params['type']], { 'gte': 0 })
+    // .aggregation('date_histogram','time' , {"interval" : "1h","format":'HH',"time_zone": "+08:00"}, 'node_agg', (a)=>{
+    //   return a.aggregation('histogram', types[req.params['type']],{"interval" : subtypes[req.params['subtype']]}, 'bins')
+    // })
+    .aggregation('terms','job_time' , {"size":0,"order":{"_term":"ASC"}}, 'node_agg', (a)=>{
+        return a.aggregation('terms','job_queue' , {"size":0}, 'queue', (b)=>{
+            return b.aggregation('value_count', "job_id", {}, 'value_count')
+        })
+    })
+    .size(0)
+    .build();
+  es_client.search({
+    'index': 'hpc.job.*',
+    'type': 'wait',
+    'body': body
+  }, function (err, resp) {
+    // console.log(JSON.stringify(resp));
+
+    if (err) {
+      res.status(404).json({ 'error': 'Data Not Found!' })
+    } else {
+      var buckets = resp['aggregations']['node_agg']['buckets']
+      var dataList = []
+
+      buckets.forEach(item=>{
+        const t = item.key
+        const b = item["queue"]["buckets"]
+        const tmp = {}; 
+        b.forEach(e =>{
+            const q = mapping[e.key]
+            const cnt = e["value_count"].value
+            if(tmp[q]) {
+                tmp[q] = tmp[q] + cnt
+            }else{
+                tmp[q] = cnt
+            }
+        })
+        for(var qu in tmp){
+            dataList.push({
+                "t": t,
+                "queue":qu,
+                "cnt": tmp[qu]
+            })
+        }
+      })
+    //   var data = buckets.map(item =>{
+    //         const t = item["key"];
+    //         const value = item["value_count"]["value"]
+    //         return {
+    //             "t":t,
+    //             "value":value
+    //         }
+    //   })
+      res.json(dataList)
+    }
+  })
+})
+router.get('/wait_time_hist__', async (req, res, next) => {
     try {
 
         var { rows } = await cli.query("\
@@ -119,6 +186,41 @@ router.get('/wait_time_hist', async (req, res, next) => {
 });
 
 router.get('/wait_time_hist1', async (req, res, next) => {
+  var body = q()
+    //.filter('term', 'node', types[req.params['type']])
+    // .filter('range', types[req.params['type']], { 'gte': 0 })
+    // .aggregation('date_histogram','time' , {"interval" : "1h","format":'HH',"time_zone": "+08:00"}, 'node_agg', (a)=>{
+    //   return a.aggregation('histogram', types[req.params['type']],{"interval" : subtypes[req.params['subtype']]}, 'bins')
+    // })
+    .aggregation('terms','job_time' , {"size":0,"order":{"_term":"ASC"}}, 'node_agg', (a)=>{
+      return a.aggregation('value_count', "job_id", {}, 'value_count')
+    })
+    .size(0)
+    .build();
+  es_client.search({
+    'index': 'hpc.job.*',
+    'type': 'wait',
+    'body': body
+  }, function (err, resp) {
+    // console.log(JSON.stringify(resp));
+
+    if (err) {
+      res.status(404).json({ 'error': 'Data Not Found!' })
+    } else {
+      var buckets = resp['aggregations']['node_agg']['buckets']
+      var data = buckets.map(item =>{
+            const t = item["key"];
+            const value = item["value_count"]["value"]
+            return {
+                "t":t,
+                "cnt":value
+            }
+      })
+      res.json(data)
+    }
+  })
+})
+router.get('/wait_time_hist1__', async (req, res, next) => {
   try {
     
     var { rows } = await cli.query("\

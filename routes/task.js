@@ -3,12 +3,24 @@ const router = new Router()
 var { Client } = require('pg')
 const moment = require("moment")
 
+
+var es = require('elasticsearch');
+
+var es_client = new es.Client({
+  // hosts: ['168.168.5.2:19200'],
+  hosts:['localhost:9200'],
+  log: ['info', 'debug']
+});
+
+var q = require("bodybuilder")
+
+
 var cli = new Client(
   {
-    "user": 'postgres',
-    // "user": "eshgfuu",
-    "host": '168.168.5.2',
-    // "host": 'localhost',
+    // "user": 'postgres',
+    "user": "eshgfuu",
+    // "host": '168.168.5.2',
+    "host": 'localhost',
     "password": 'oio',
     "database": 'hpc',
     "port": 5432
@@ -79,8 +91,43 @@ const calTimeList = function (rows) {
   console.log(time3.diff(time2) / 1000)
   return data;
 }
-
 router.get('/wait_time_hist', async (req, res, next) => {
+  var body = q()
+    //.filter('term', 'node', types[req.params['type']])
+    // .filter('range', types[req.params['type']], { 'gte': 0 })
+    // .aggregation('date_histogram','time' , {"interval" : "1h","format":'HH',"time_zone": "+08:00"}, 'node_agg', (a)=>{
+    //   return a.aggregation('histogram', types[req.params['type']],{"interval" : subtypes[req.params['subtype']]}, 'bins')
+    // })
+    .aggregation('terms','job_time' , {"size":0,"order":{"_term":"ASC"}}, 'node_agg', (a)=>{
+      return a.aggregation('value_count', "job_id", {}, 'value_count')
+    })
+    .size(0)
+    .build();
+  es_client.search({
+    'index': 'hpc.job.*',
+    'type': 'wait',
+    'body': body
+  }, function (err, resp) {
+    // console.log(JSON.stringify(resp));
+
+    if (err) {
+      console.log(JSON.stringify(err));
+      res.status(404).json({ 'error': 'Data Not Found!' })
+    } else {
+      var buckets = resp['aggregations']['node_agg']['buckets']
+      var data = buckets.map(item =>{
+            const t = item["key"];
+            const value = item["value_count"]["value"]
+            return {
+                "t":t,
+                "cnt":value
+            }
+      })
+      res.json(data)
+    }
+  })
+})
+router.get('/wait_time_hist__', async (req, res, next) => {
   try {
     
     var { rows } = await cli.query("\
@@ -140,6 +187,42 @@ router.get('/wait_time_hist1', async (req, res, next) => {
 });
 
 router.get('/run_time_hist', async (req, res, next) => {
+  var body = q()
+    //.filter('term', 'node', types[req.params['type']])
+    // .filter('range', types[req.params['type']], { 'gte': 0 })
+    // .aggregation('date_histogram','time' , {"interval" : "1h","format":'HH',"time_zone": "+08:00"}, 'node_agg', (a)=>{
+    //   return a.aggregation('histogram', types[req.params['type']],{"interval" : subtypes[req.params['subtype']]}, 'bins')
+    // })
+    .aggregation('terms','job_time' , {"size":0,"order":{"_term":"ASC"}}, 'node_agg', (a)=>{
+      return a.aggregation('value_count', "job_id", {}, 'value_count')
+    })
+    .size(0)
+    .build();
+  es_client.search({
+    'index': 'hpc.job.*',
+    'type': 'run',
+    'body': body
+  }, function (err, resp) {
+    // console.log(JSON.stringify(resp));
+
+    if (err) {
+      res.status(404).json({ 'error': 'Data Not Found!' })
+    } else {
+      var buckets = resp['aggregations']['node_agg']['buckets']
+      var data = buckets.map(item =>{
+            const t = item["key"];
+            const value = item["value_count"]["value"]
+            return {
+                "t":t,
+                "cnt":value
+            }
+      })
+      res.json(data)
+    }
+  })
+})
+
+router.get('/run_time_hist__', async (req, res, next) => {
   try {
    
     var { rows } = await cli.query("\
@@ -228,7 +311,9 @@ const calTimeList1 = function (rows) {
   console.log(time3.diff(time2) / 1000)
   return data;
 }
-router.get('/run_cpus_hist', async (req, res, next) => {
+
+
+router.get('/run_cpus_hist__', async (req, res, next) => {
   try {
    
     var { rows } = await cli.query("\
@@ -263,6 +348,44 @@ router.get('/run_cpus_hist', async (req, res, next) => {
   }
 });
 
+
+router.get('/run_cpus_hist', async (req, res, next) => {
+  var body = q()
+    //.filter('term', 'node', types[req.params['type']])
+    // .filter('range', types[req.params['type']], { 'gte': 0 })
+    // .aggregation('date_histogram','time' , {"interval" : "1h","format":'HH',"time_zone": "+08:00"}, 'node_agg', (a)=>{
+    //   return a.aggregation('histogram', types[req.params['type']],{"interval" : subtypes[req.params['subtype']]}, 'bins')
+    // })
+    .aggregation('terms','job_time' , {"size":0,"order":{"_term":"ASC"}}, 'node_agg', (a)=>{
+      return a.aggregation('sum', "job_ncpu", {}, 'value_count')
+    })
+    .size(0)
+    .build();
+  es_client.search({
+    'index': 'hpc.job.*',
+    'type': 'run',
+    'body': body
+  }, function (err, resp) {
+    // console.log(JSON.stringify(resp));
+
+    if (err) {
+      console.log(JSON.stringify(err))
+      res.status(404).json({ 'error': 'Data Not Found!' })
+    } else {
+      var buckets = resp['aggregations']['node_agg']['buckets']
+      var data = buckets.map(item =>{
+            const t = item["key"];
+            const value = item["value_count"]["value"]
+            return {
+                "t":t,
+                "cnt":value
+            }
+      })
+      res.json(data)
+    }
+  })
+})
+
 router.get('/ncpus_dist', async (req, res, next) => {
   try {
     
@@ -288,7 +411,7 @@ router.get('/mem_dist', async (req, res, next) => {
 router.get('/submit_by_hour', async (req, res, next) => {
   try {
     const { rows } = await cli.query("\
-      select extract(hour from create_time) as t ,count(*) from job_submit  group by t order by t;\
+      select extract(hour from submit_time) as t ,count(*) from job_submit  group by t order by t;\
     ")
 
     res.json(rows)
@@ -300,7 +423,7 @@ router.get('/submit_by_hour', async (req, res, next) => {
 router.get('/submit_by_weekday', async (req, res, next) => {
   try {
     const { rows } = await cli.query("\
-select extract(DOW from create_time) as t ,count(*) from job_submit  group by t order by t;\
+select extract(DOW from submit_time) as t ,count(*) from job_submit  group by t order by t;\
     ")
 
     res.json(rows)

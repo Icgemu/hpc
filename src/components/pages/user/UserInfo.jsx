@@ -37,8 +37,7 @@ class UserInfo extends React.Component {
                 var chart3 = ECharts.getInstanceByDom(dom3)
                 ECharts.connect([chart2,chart3])
             },100);
-        }
-        
+        }      
     }
 
     render() {

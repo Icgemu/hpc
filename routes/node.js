@@ -6,8 +6,8 @@ const moment = require("moment")
 var es = require('elasticsearch');
 
 var es_client = new es.Client({
-  hosts: ['168.168.5.2:19200'],
-  // hosts:['localhost:9200'],
+  // hosts: ['168.168.5.2:19200'],
+  hosts:['localhost:9200'],
   log: ['info', 'debug']
 });
 
@@ -16,10 +16,10 @@ var q = require("bodybuilder")
 
 var cli = new Client(
   {
-    "user": 'postgres',
-    // "user": "eshgfuu",
-    "host": '168.168.5.2',
-    // "host": 'localhost',
+    // "user": 'postgres',
+    "user": "eshgfuu",
+    // "host": '168.168.5.2',
+    "host": 'localhost',
     "password": 'oio',
     "database": 'hpc',
     "port": 5432
