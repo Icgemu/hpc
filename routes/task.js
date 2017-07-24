@@ -1,51 +1,50 @@
 const Router = require('express-promise-router')
 const router = new Router()
-var { Client } = require('pg')
+// var { Client } = require('pg')
 const moment = require("moment")
+var {newPg, es_client ,stET} = require("./config")
+// var es = require('elasticsearch');
 
-
-var es = require('elasticsearch');
-
-var es_client = new es.Client({
-  hosts: ['168.168.5.2:19200'],
-  // hosts:['localhost:9200'],
-  log: ['info', 'debug']
-});
+// var es_client = new es.Client({
+//   hosts: ['168.168.5.2:19200'],
+//   // hosts:['localhost:9200'],
+//   log: ['info', 'debug']
+// });
 
 var q = require("bodybuilder")
+var cli = newPg()
 
-
-var cli = new Client(
-  {
-    "user": 'postgres',
-    // "user": "eshgfuu",
-    "host": '168.168.5.2',
-    // "host": 'localhost',
-    "password": 'oio',
-    "database": 'hpc',
-    "port": 5432
-  }
-);
-cli.connect()
-var stET = function(st,et,field,where){
-  if(st && et){
-      const b = moment(st).format("YYYY-MM-DD")
-      const e = moment(et).format("YYYY-MM-DD")
-      if(where){
-          return "  where "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
-      }else{
-          return " "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
-      }
-  }else{
-    return ""
-  }
-}
+// var cli = new Client(
+//   {
+//     "user": 'postgres',
+//     // "user": "eshgfuu",
+//     "host": '168.168.5.2',
+//     // "host": 'localhost',
+//     "password": 'oio',
+//     "database": 'hpc',
+//     "port": 5432
+//   }
+// );
+// cli.connect()
+// var stET = function(st,et,field,where){
+//   if(st && et){
+//       const b = moment(st).format("YYYY-MM-DD")
+//       const e = moment(et).format("YYYY-MM-DD")
+//       if(where){
+//           return "  where "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
+//       }else{
+//           return " "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
+//       }
+//   }else{
+//     return ""
+//   }
+// }
 router.get('/job_by_day', async (req, res, next) => {
   try {
     let st = req.session.st;
     let et = req.session.et;
     // console.log("log=>"+JSON.stringify(req.session))
-    var t = stET(st,et,"st",true)
+    var t = await stET(st,et,"st",true)
     console.log("log=>"+JSON.stringify(t))
     const { rows } = await cli.query("select to_char(st, 'YYYY-MM-DD') as t ,job_status, count(*)as cnt from job_result"+ t +" group by t,job_status order by t,job_status;")
     // const rs = rows.map(function(element) {
@@ -57,57 +56,57 @@ router.get('/job_by_day', async (req, res, next) => {
   }
 });
 
-const calTimeList = function (rows) {
-  var dff = 1;
-  var data = {}
-  var start = rows[0].s;
-  var end = rows[rows.length - 1].e
-  start = moment(start).format("YYYY-MM-DD HH:mm")
-  end = moment(end).format("YYYY-MM-DD HH:mm")
+// const calTimeList = function (rows) {
+//   var dff = 1;
+//   var data = {}
+//   var start = rows[0].s;
+//   var end = rows[rows.length - 1].e
+//   start = moment(start).format("YYYY-MM-DD HH:mm")
+//   end = moment(end).format("YYYY-MM-DD HH:mm")
 
-  start = moment(start)
-  end = moment(end)
-  var time1 = moment()
-  while (end.diff(start) >= 0) {
-    const t = moment(start).format("YYYY-MM-DD HH:mm")
-    data[t] = 0;
-    start = start.add(dff, 'minutes')
-  }
-  var time2 = moment()
-  console.log(time2.diff(time1) / 1000)
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    var s = moment(row.s)
-    var e = moment(row.e)
-    // console.log(s + '->'+ e)
+//   start = moment(start)
+//   end = moment(end)
+//   var time1 = moment()
+//   while (end.diff(start) >= 0) {
+//     const t = moment(start).format("YYYY-MM-DD HH:mm")
+//     data[t] = 0;
+//     start = start.add(dff, 'minutes')
+//   }
+//   var time2 = moment()
+//   console.log(time2.diff(time1) / 1000)
+//   for (let i = 0; i < rows.length; i++) {
+//     const row = rows[i];
+//     var s = moment(row.s)
+//     var e = moment(row.e)
+//     // console.log(s + '->'+ e)
 
-    var t1 = moment(s.format("YYYY-MM-DD HH:mm"))
-    var t2 = moment(e.format("YYYY-MM-DD HH:mm"))
-    // console.log(t1 + '->'+ t2)
+//     var t1 = moment(s.format("YYYY-MM-DD HH:mm"))
+//     var t2 = moment(e.format("YYYY-MM-DD HH:mm"))
+//     // console.log(t1 + '->'+ t2)
 
-    if (s.diff(t1) == 0) {
-      const f = s.format("YYYY-MM-DD HH:mm")
-      var c = data[f] + 1
-      data[f] = c
-    }
+//     if (s.diff(t1) == 0) {
+//       const f = s.format("YYYY-MM-DD HH:mm")
+//       var c = data[f] + 1
+//       data[f] = c
+//     }
 
-    if (t1.diff(t2) == 0) {
-      continue
-    } else {
-      //  console.log("diff > 1 minutes")
-    }
+//     if (t1.diff(t2) == 0) {
+//       continue
+//     } else {
+//       //  console.log("diff > 1 minutes")
+//     }
 
-    while (t2.diff(t1) >= dff * 60 * 1000) {
-      t1 = t1.add(dff, "minutes")
-      const f = t1.format("YYYY-MM-DD HH:mm")
-      var c = data[f] + 1
-      data[f] = c
-    }
-  }
-  var time3 = moment()
-  console.log(time3.diff(time2) / 1000)
-  return data;
-}
+//     while (t2.diff(t1) >= dff * 60 * 1000) {
+//       t1 = t1.add(dff, "minutes")
+//       const f = t1.format("YYYY-MM-DD HH:mm")
+//       var c = data[f] + 1
+//       data[f] = c
+//     }
+//   }
+//   var time3 = moment()
+//   console.log(time3.diff(time2) / 1000)
+//   return data;
+// }
 router.get('/wait_time_hist', async (req, res, next) => {
   var query = q()
     //.filter('term', 'node', types[req.params['type']])
@@ -155,47 +154,47 @@ router.get('/wait_time_hist', async (req, res, next) => {
     }
   })
 })
-router.get('/wait_time_hist__', async (req, res, next) => {
-  try {
+// router.get('/wait_time_hist__', async (req, res, next) => {
+//   try {
     
-    var { rows } = await cli.query("\
-      select id as t, cnt \
-      from job_wait_count order by id ;\
-    ")
-    if (rows && rows.length > 0) {
-      res.json(rows)
-    } else {
-      var { rows } = await cli.query("\
-      select a2.job_id as jid , a2.st as s, a1.create_time as e,  count(distinct a2.job_id) ,  count(a2.job_id) \
-      from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
-      group by jid, s,e order by s;\
-    ")
-      const dataList = calTimeList(rows)
-      const data = []
-      for (var item in dataList) {
-        data.push({
-          "t": item,
-          "cnt": dataList[item]
-        })
-        var t = await cli.query("insert into job_wait_count(id, cnt) values($1,$2);", [item, dataList[item]])
-        // console.log(JSON.stringify(t))
-      }
-      await cli.query("COMMIT");
-      res.json(data)
-    }
+//     var { rows } = await cli.query("\
+//       select id as t, cnt \
+//       from job_wait_count order by id ;\
+//     ")
+//     if (rows && rows.length > 0) {
+//       res.json(rows)
+//     } else {
+//       var { rows } = await cli.query("\
+//       select a2.job_id as jid , a2.st as s, a1.create_time as e,  count(distinct a2.job_id) ,  count(a2.job_id) \
+//       from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
+//       group by jid, s,e order by s;\
+//     ")
+//       const dataList = calTimeList(rows)
+//       const data = []
+//       for (var item in dataList) {
+//         data.push({
+//           "t": item,
+//           "cnt": dataList[item]
+//         })
+//         var t = await cli.query("insert into job_wait_count(id, cnt) values($1,$2);", [item, dataList[item]])
+//         // console.log(JSON.stringify(t))
+//       }
+//       await cli.query("COMMIT");
+//       res.json(data)
+//     }
 
-  } catch (error) {
-    console.log(JSON.stringify(error))
-    res.status(404).json({ "error": "no data" })
-  }
-});
+//   } catch (error) {
+//     console.log(JSON.stringify(error))
+//     res.status(404).json({ "error": "no data" })
+//   }
+// });
 
 router.get('/wait_time_hist1', async (req, res, next) => {
   try {
     let st = req.session.st;
     let et = req.session.et;
     // console.log("log=>"+JSON.stringify(req.session))
-    var t = stET(st,et,"a2.st",false)
+    var t = await stET(st,et,"a2.st",false)
 
       var { rows } = await cli.query("\
       with h AS(\
@@ -263,131 +262,131 @@ router.get('/run_time_hist', async (req, res, next) => {
   })
 })
 
-router.get('/run_time_hist__', async (req, res, next) => {
-  try {
+// router.get('/run_time_hist__', async (req, res, next) => {
+//   try {
    
-    var { rows } = await cli.query("\
-      select id as t , cnt \
-      from job_run_count order by id;\
-    ")
-    if (rows && rows.length > 0) {
-      res.json(rows)
-    } else {
-      var { rows } = await cli.query("\
-        select a2.job_id as jid , a2.et as e, a1.create_time as s,  count(distinct a2.job_id) ,  count(a2.job_id) \
-        from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
-        group by jid, s,e order by s;\
-      ")
-      const dataList = calTimeList(rows)
-      const data = []
-      for (var item in dataList) {
-        data.push({
-          "t": item,
-          "cnt": dataList[item]
-        })
-        var t =await cli.query("insert into job_run_count(id, cnt) values($1,$2) ;", [item, dataList[item]])
-        // console.log(JSON.stringify(t))
-      }
-      await cli.query("COMMIT");
-      res.json(data)
-    }
-  } catch (error) {
-    console.log(JSON.stringify(error))
-    res.status(404).json({ "error": "no data" })
-  }
-});
+//     var { rows } = await cli.query("\
+//       select id as t , cnt \
+//       from job_run_count order by id;\
+//     ")
+//     if (rows && rows.length > 0) {
+//       res.json(rows)
+//     } else {
+//       var { rows } = await cli.query("\
+//         select a2.job_id as jid , a2.et as e, a1.create_time as s,  count(distinct a2.job_id) ,  count(a2.job_id) \
+//         from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
+//         group by jid, s,e order by s;\
+//       ")
+//       const dataList = calTimeList(rows)
+//       const data = []
+//       for (var item in dataList) {
+//         data.push({
+//           "t": item,
+//           "cnt": dataList[item]
+//         })
+//         var t =await cli.query("insert into job_run_count(id, cnt) values($1,$2) ;", [item, dataList[item]])
+//         // console.log(JSON.stringify(t))
+//       }
+//       await cli.query("COMMIT");
+//       res.json(data)
+//     }
+//   } catch (error) {
+//     console.log(JSON.stringify(error))
+//     res.status(404).json({ "error": "no data" })
+//   }
+// });
 
-const calTimeList1 = function (rows) {
-  var dff = 1;
-  var data = {}
-  var start = rows[0].s;
-  var end = rows[rows.length - 1].e
-  start = moment(start).format("YYYY-MM-DD HH:mm")
-  end = moment(end).format("YYYY-MM-DD HH:mm")
+// const calTimeList1 = function (rows) {
+//   var dff = 1;
+//   var data = {}
+//   var start = rows[0].s;
+//   var end = rows[rows.length - 1].e
+//   start = moment(start).format("YYYY-MM-DD HH:mm")
+//   end = moment(end).format("YYYY-MM-DD HH:mm")
 
-  start = moment(start)
-  end = moment(end)
-  var time1 = moment()
-  while (end.diff(start) >= 0) {
-    const t = moment(start).format("YYYY-MM-DD HH:mm")
-    data[t] = 0;
-    start = start.add(dff, 'minutes')
-  }
-  var time2 = moment()
-  console.log(time2.diff(time1) / 1000)
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    var s = moment(row.s)
-    var e = moment(row.e)
-    var ncpu = parseInt(row.ncpu)
-    if(ncpu >1000){
-      console.log( 'ncpu ->'+ ncpu)
-    }
+//   start = moment(start)
+//   end = moment(end)
+//   var time1 = moment()
+//   while (end.diff(start) >= 0) {
+//     const t = moment(start).format("YYYY-MM-DD HH:mm")
+//     data[t] = 0;
+//     start = start.add(dff, 'minutes')
+//   }
+//   var time2 = moment()
+//   console.log(time2.diff(time1) / 1000)
+//   for (let i = 0; i < rows.length; i++) {
+//     const row = rows[i];
+//     var s = moment(row.s)
+//     var e = moment(row.e)
+//     var ncpu = parseInt(row.ncpu)
+//     if(ncpu >1000){
+//       console.log( 'ncpu ->'+ ncpu)
+//     }
 
-    var t1 = moment(s.format("YYYY-MM-DD HH:mm"))
-    var t2 = moment(e.format("YYYY-MM-DD HH:mm"))
-    // console.log(t1 + '->'+ t2)
+//     var t1 = moment(s.format("YYYY-MM-DD HH:mm"))
+//     var t2 = moment(e.format("YYYY-MM-DD HH:mm"))
+//     // console.log(t1 + '->'+ t2)
 
-    if (s.diff(t1) == 0) {
-      const f = s.format("YYYY-MM-DD HH:mm")
+//     if (s.diff(t1) == 0) {
+//       const f = s.format("YYYY-MM-DD HH:mm")
       
-      var c = data[f] + ncpu
-      data[f] = c
-    }
+//       var c = data[f] + ncpu
+//       data[f] = c
+//     }
 
-    if (t1.diff(t2) == 0) {
-      continue
-    } else {
-      //  console.log("diff > 1 minutes")
-    }
+//     if (t1.diff(t2) == 0) {
+//       continue
+//     } else {
+//       //  console.log("diff > 1 minutes")
+//     }
 
-    while (t2.diff(t1) >= dff * 60 * 1000) {
-      t1 = t1.add(dff, "minutes")
-      const f = t1.format("YYYY-MM-DD HH:mm")
-      var c = data[f] + ncpu
-      data[f] = c
-    }
-  }
-  var time3 = moment()
-  console.log(time3.diff(time2) / 1000)
-  return data;
-}
+//     while (t2.diff(t1) >= dff * 60 * 1000) {
+//       t1 = t1.add(dff, "minutes")
+//       const f = t1.format("YYYY-MM-DD HH:mm")
+//       var c = data[f] + ncpu
+//       data[f] = c
+//     }
+//   }
+//   var time3 = moment()
+//   console.log(time3.diff(time2) / 1000)
+//   return data;
+// }
 
 
-router.get('/run_cpus_hist__', async (req, res, next) => {
-  try {
+// router.get('/run_cpus_hist__', async (req, res, next) => {
+//   try {
    
-    var { rows } = await cli.query("\
-      select id as t , cnt \
-      from job_run_ncpu order by id;\
-    ")
-    if (rows && rows.length > 0) {
-      res.json(rows)
-    } else {
-      var { rows } = await cli.query("\
-        select a2.job_id as jid , a2.et as e, a1.create_time as s,  sum(a1.job_run_ncpu) as ncpu \
-        from job_dispatch as a1, job_result as a2 where a2.job_ncpu >= 0 AND a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
-        group by jid, s,e order by s;\
-      ")
-      const dataList = calTimeList1(rows)
-      const data = []
-      for (var item in dataList) {
-        data.push({
-          "t": item,
-          "cnt": dataList[item]
-        })
-        // console.log(item +"->"+dataList[item])
-        var t =await cli.query("insert into job_run_ncpu(id, cnt) values($1,$2) ;", [item, dataList[item]])
-        // console.log(JSON.stringify(t))
-      }
-      await cli.query("COMMIT");
-      res.json(data)
-    }
-  } catch (error) {
-    console.log(JSON.stringify(error))
-    res.status(404).json({ "error": "no data" })
-  }
-});
+//     var { rows } = await cli.query("\
+//       select id as t , cnt \
+//       from job_run_ncpu order by id;\
+//     ")
+//     if (rows && rows.length > 0) {
+//       res.json(rows)
+//     } else {
+//       var { rows } = await cli.query("\
+//         select a2.job_id as jid , a2.et as e, a1.create_time as s,  sum(a1.job_run_ncpu) as ncpu \
+//         from job_dispatch as a1, job_result as a2 where a2.job_ncpu >= 0 AND a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
+//         group by jid, s,e order by s;\
+//       ")
+//       const dataList = calTimeList1(rows)
+//       const data = []
+//       for (var item in dataList) {
+//         data.push({
+//           "t": item,
+//           "cnt": dataList[item]
+//         })
+//         // console.log(item +"->"+dataList[item])
+//         var t =await cli.query("insert into job_run_ncpu(id, cnt) values($1,$2) ;", [item, dataList[item]])
+//         // console.log(JSON.stringify(t))
+//       }
+//       await cli.query("COMMIT");
+//       res.json(data)
+//     }
+//   } catch (error) {
+//     console.log(JSON.stringify(error))
+//     res.status(404).json({ "error": "no data" })
+//   }
+// });
 
 
 router.get('/run_cpus_hist', async (req, res, next) => {
@@ -442,7 +441,7 @@ router.get('/ncpus_dist', async (req, res, next) => {
     let st = req.session.st;
     let et = req.session.et;
     // console.log("log=>"+JSON.stringify(req.session))
-    var t = stET(st,et,"st",false)
+    var t = await stET(st,et,"st",false)
     const { rows } = await cli.query("select job_ncpu as n , count(*) as cnt from job_result where job_status <3 AND "+t+" group by n order by n")
     res.json(rows)
   } catch (error) {
@@ -467,7 +466,7 @@ router.get('/submit_by_hour', async (req, res, next) => {
     let st = req.session.st;
     let et = req.session.et;
     // console.log("log=>"+JSON.stringify(req.session))
-    var t = stET(st,et,"submit_time",true)
+    var t = await stET(st,et,"submit_time",true)
     const { rows } = await cli.query("\
       select extract(hour from submit_time) as t ,count(*) from job_submit "+t+" group by t order by t;\
     ")
@@ -483,7 +482,7 @@ router.get('/submit_by_weekday', async (req, res, next) => {
     let st = req.session.st;
     let et = req.session.et;
     // console.log("log=>"+JSON.stringify(req.session))
-    var t = stET(st,et,"submit_time",true)
+    var t = await stET(st,et,"submit_time",true)
     const { rows } = await cli.query("\
 select extract(DOW from submit_time) as t ,count(*) from job_submit "+t+" group by t order by t;\
     ")
@@ -503,7 +502,7 @@ router.get('/list/:limit/:offset/:total', async (req, res, next) => {
   let st = req.session.st;
     let et = req.session.et;
     // console.log("log=>"+JSON.stringify(req.session))
-    var t = stET(st,et,"st",true)
+    var t = await stET(st,et,"st",true)
 
   if (total == 0) {
     const { rows } = await cli.query("\

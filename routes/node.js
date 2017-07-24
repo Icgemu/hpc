@@ -1,32 +1,32 @@
 const Router = require('express-promise-router')
 const router = new Router()
-var { Client } = require('pg')
+// var { Client } = require('pg')
 const moment = require("moment")
+var {newPg, es_client,stET} = require("./config")
+// var es = require('elasticsearch');
 
-var es = require('elasticsearch');
-
-var es_client = new es.Client({
-  hosts: ['168.168.5.2:19200'],
-  // hosts:['localhost:9200'],
-  log: ['info', 'debug']
-});
+// var es_client = new es.Client({
+//   hosts: ['168.168.5.2:19200'],
+//   // hosts:['localhost:9200'],
+//   log: ['info', 'debug']
+// });
 
 var q = require("bodybuilder")
 
 
-var cli = new Client(
-  {
-    "user": 'postgres',
-    // "user": "eshgfuu",
-    "host": '168.168.5.2',
-    // "host": 'localhost',
-    "password": 'oio',
-    "database": 'hpc',
-    "port": 5432
-  }
-);
-cli.connect()
-
+// var cli = new Client(
+//   {
+//     "user": 'postgres',
+//     // "user": "eshgfuu",
+//     "host": '168.168.5.2',
+//     // "host": 'localhost',
+//     "password": 'oio',
+//     "database": 'hpc',
+//     "port": 5432
+//   }
+// );
+// cli.connect()
+var cli = newPg()
 
 /* GET time stats. */
 router.get('/time_stats/:type', function (req, res, next) {
@@ -161,26 +161,26 @@ var mapping = {
 }
 
 
-var stET = function(st,et,field,where){
-  if(st && et){
-      const b = moment(st).format("YYYY-MM-DD")
-      const e = moment(et).format("YYYY-MM-DD")
-      if(where){
-          return "  where "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
-      }else{
-          return " "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
-      }
-  }else{
-    return ""
-  }
-}
+// var stET = function(st,et,field,where){
+//   if(st && et){
+//       const b = moment(st).format("YYYY-MM-DD")
+//       const e = moment(et).format("YYYY-MM-DD")
+//       if(where){
+//           return "  where "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
+//       }else{
+//           return " "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
+//       }
+//   }else{
+//     return ""
+//   }
+// }
 
 router.get('/node_jobs', async (req, res, next) => {
   try {
     let st = req.session.st;
     let et = req.session.et;
     // console.log("log=>"+JSON.stringify(req.session))
-    var t = stET(st,et,"a2.st",false)
+    var t = await stET(st,et,"a2.st",false)
     const { rows } = await cli.query("\
       select  a1.job_run_node as n, a2.job_queue as queue, count(distinct a2.job_id) as cnt\
       from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 AND "+t+" \
