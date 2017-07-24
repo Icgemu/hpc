@@ -1,6 +1,6 @@
 import {bar} from "../../hpc/echart"
 exports.Option1 = function (_this) {
-    fetch('/node/time_stats/cpu').then((resp) => {
+    fetch('/node/time_stats/cpu',{credentials: 'include'}).then((resp) => {
         return resp.json();
     }).then((arr) => {
         

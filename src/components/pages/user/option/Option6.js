@@ -1,6 +1,6 @@
 import {bar} from "../../hpc/echart"
 exports.Option6 = function (_this) {
-    fetch('/user/queue_mem_hist').then((resp) => {
+    fetch('/user/queue_mem_hist',{credentials: 'include'}).then((resp) => {
         return resp.json();
     }).then((arr) => {
         const x_data = [];

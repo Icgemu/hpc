@@ -1,6 +1,6 @@
 import {bar} from "../../hpc/echart"
 exports.Option7 = function (_this) {
-    fetch('/task/submit_by_weekday').then((resp) => {
+    fetch('/task/submit_by_weekday',{credentials: 'include'}).then((resp) => {
         return resp.json();
     }).then((arr) => {
         const m = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六']

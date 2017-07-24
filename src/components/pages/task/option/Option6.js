@@ -1,6 +1,6 @@
 import {bar} from "../../hpc/echart"
 exports.Option6 = function (_this) {
-    fetch('/task/submit_by_hour').then((resp) => {
+    fetch('/task/submit_by_hour',{credentials: 'include'}).then((resp) => {
         return resp.json();
     }).then((arr) => {
         const x_data = arr.map((item,i) => {

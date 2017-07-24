@@ -12,7 +12,8 @@ var task = require('./routes/task');
 var user = require('./routes/user');
 var node = require('./routes/node');
 var app = express();
-
+var session = require('express-session')
+var sessionStore = new session.MemoryStore();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -24,6 +25,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'build')));
+
+app.use(session({
+  secret: 'hpc',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { maxAge: 60*60000 },
+  store:sessionStore
+}))
 
 app.use('/', routes);
 app.use('/info', info);

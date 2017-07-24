@@ -1,6 +1,6 @@
 import {bar} from "../../hpc/echart"
 exports.Option1 = function (_this) {
-    fetch('/task/job_by_day').then((resp) => {
+    fetch('/task/job_by_day',{credentials: 'include'}).then((resp) => {
         return resp.json();
     }).then((arr) => {
         const x_data = [];

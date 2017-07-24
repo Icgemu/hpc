@@ -1,6 +1,6 @@
 import {bar} from "../../hpc/echart"
 exports.Option5 = function (_this) {
-    fetch('/user/queue_wait_time_hist').then((resp) => {
+    fetch('/user/queue_wait_time_hist',{credentials: 'include'}).then((resp) => {
         return resp.json();
     }).then((arr) => {
 

@@ -1,6 +1,6 @@
 import {bar} from "../../hpc/echart"
 exports.Option3 = function (_this) {
-    fetch('/task/run_cpus_hist').then((resp) => {
+    fetch('/task/run_cpus_hist',{credentials: 'include'}).then((resp) => {
     // fetch('/task/run_time_hist').then((resp) => {
         return resp.json();
     }).then((arr) => {

@@ -3,10 +3,22 @@ import styles from './header.scss';
 import DatePicker from 'rsuite-datepicker';
 import 'rsuite-datepicker/style/Default.less';
 
+import {Grid,Row,Col,Button} from "rsuite"
+
 class Nav extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
+
+       fetch("/get_time",{credentials: 'include'}).then((resp) => {
+           return resp.json();
+       }).then((arr) => {
+           //_this.setState(arr)
+           if(arr && arr["st"] & arr["et"]){
+               console.log(JSON.stringify(arr))
+                this.setState({"st":new Date(arr["st"]),"et":new Date(arr["et"])})
+           }
+       })
     }
 
     changeTime(flag, d){
@@ -15,60 +27,68 @@ class Nav extends React.Component {
         this.setState(data)
     }
 
+    setTime(e){
+       var  {st,et} = this.state
+       var s = st.getTime();
+       var e = et.getTime();
+        var url = `/time/${s}/${e}`
+       fetch(url,{credentials: 'include'}).then((resp) => {
+           return resp.json();
+       }).then((arr) => {
+           //_this.setState(arr)
+           if(arr && arr["result"]  == "ok"){
+                window.location.reload()
+            //    fetch("/get_time",{credentials: 'include'}).then((resp) => {
+            //        return resp.json();
+            //    }).then((arr) => {
+            //        //_this.setState(arr)
+            //        if (arr && arr["st"] & arr["et"]) {
+            //            console.log(JSON.stringify(arr))
+            //         //    this.setState(arr)
+            //        }
+            //    })
+           }
+       })
+        //this.setState(data)
+        // alert(st.getTime() +"~" +et.getTime())
+        // var r = this.props.router
+       
+    }
+
     render() {
         let badge = `badge ${styles.badge} `;
         let drop = ` dropdown-menu ${styles.dropdown}`;
 
         let wid = Object.assign({
-            width: '250px',
+            width: '450px',
         }, this.props.style);
-
+        let {st,et} = this.state
+        let sd = st?(st.toLocaleDateString()) : "";
+        let ed = et?(et.toLocaleDateString()) : "";
         return (
             <div className={styles.headerInfo}>
                 <div style={wid}>
+                    
+                        <Row><Col xs={4}>
                     <DatePicker
-                        dateFormat="YYYY-MM-DD"
+                        dateFormat="YYYY/M/D"
                         autoClose = "true"
-                        onChange={date => this.changeTime('st',date)}
-                    />
-                    ~
-                    <DatePicker
-                        dateFormat="YYYY-MM-DD"
+                        placeholder={sd}
+                        onSelect={date => this.changeTime('st',date)}
+                    /></Col>
+                    <Col xs={1}>~</Col>
+                    <Col xs={4}><DatePicker
+                        dateFormat="YYYY/M/D"
                         autoClose = "true"
-                        onChange={date => this.changeTime('et',date)}
-                    />
-
+                        placeholder={ed}
+                        onSelect={date => this.changeTime('et',date)}
+                    /></Col>
+                    <Col xs={3}><Button shape='primary' onClick={e =>{ 
+                            this.setTime(e)
+                        }}>确定</Button></Col>
+                    </Row>
+                    
                 </div>
-                <ul className={styles.headerInfoList}>
-                    <li className="datetime">
-
-                    </li>
-                    {/* <li>
-                        <a href="#">消息
-                            <span className={badge}>4</span>
-                        </a>
-                    </li> */}
-                    {/* <li className="dropdown">
-                        <a href="#" className="dropdown-toggle" data-toggle="dropdown">我的账户
-                            <span className="caret"></span>
-                        </a>
-                        <ul className={drop} role="menu">
-                            <li>
-                                <a href="#" data-toggle="dialog" data-id="changepwd_page" data-mask="true" data-width="400" data-height="260">&nbsp;<span className="glyphicon glyphicon-lock"></span>
-                                    修改密码</a>
-                            </li>
-                            <li>
-                                <a href="#">&nbsp;<span className="glyphicon glyphicon-user"></span>
-                                    我的资料</a>
-                            </li>
-                            <li className="divider"></li>
-                            <li>
-                                <a href="#" className="red">&nbsp;<span className="glyphicon glyphicon-off"></span>
-                                    注销登陆</a>
-                            </li>
-                        </ul>
-                    </li> */}
-                </ul>
             </div>
         );
     }

@@ -1,6 +1,6 @@
 import { scatter, bar } from "../../hpc/echart"
 exports.Option4 = function (_this) {
-    fetch('/task/ncpus_dist').then((resp) => {
+    fetch('/task/ncpus_dist',{credentials: 'include'}).then((resp) => {
         return resp.json();
     }).then((arr) => {
         //     const x_data = arr.map((item,i) => {

@@ -6,8 +6,8 @@ const moment = require("moment")
 var es = require('elasticsearch');
 
 var es_client = new es.Client({
-  // hosts: ['168.168.5.2:19200'],
-  hosts:['localhost:9200'],
+  hosts: ['168.168.5.2:19200'],
+  // hosts:['localhost:9200'],
   log: ['info', 'debug']
 });
 
@@ -16,10 +16,10 @@ var q = require("bodybuilder")
 
 var cli = new Client(
   {
-    // "user": 'postgres',
-    "user": "eshgfuu",
-    // "host": '168.168.5.2',
-    "host": 'localhost',
+    "user": 'postgres',
+    // "user": "eshgfuu",
+    "host": '168.168.5.2',
+    // "host": 'localhost',
     "password": 'oio',
     "database": 'hpc',
     "port": 5432
@@ -33,7 +33,7 @@ router.get('/time_stats/:type', function (req, res, next) {
   var types = { 'cpu': 'cpu_usage', 'disk': 'disk_usage', 'mem': 'mem_usage' }
 //   var subtypes = {'1':10,"2":10000000,'3':10}
 
-  var body = q()
+  var query = q()
     //.filter('term', 'node', types[req.params['type']])
     .filter('range', types[req.params['type']], { 'gte': 0 })
     // .aggregation('date_histogram','time' , {"interval" : "1h","format":'HH',"time_zone": "+08:00"}, 'node_agg', (a)=>{
@@ -42,8 +42,16 @@ router.get('/time_stats/:type', function (req, res, next) {
     .aggregation('date_histogram','create_time' , {"interval" : "10m","format":'YYYY-MM-dd HH:mm',"time_zone": "+08:00"}, 'node_agg', (a)=>{
       return a.aggregation('avg', types[req.params['type']],{}, 'avg')
     })
-    .size(0)
-    .build();
+    .size(0);
+    let st = req.session.st;
+    let et = req.session.et;
+    // console.log("log=>"+JSON.stringify(req.session))
+    if(st && et){
+      //const b = moment(st).format("YYYY-MM-DD")
+      //const e = moment(et).format("YYYY-MM-DD")
+      query.filter('range', "create_time", { 'gte': st, 'lt':et })
+    }
+    var body = query.build();
   es_client.search({
     'index': 'hpc.node.*',
     'type': 'stats',
@@ -75,7 +83,7 @@ router.get('/node_stats/:type', function (req, res, next) {
   var types = { 'cpu': 'cpu_usage', 'disk': 'disk_usage', 'mem': 'mem_usage' }
 //   var subtypes = {'1':10,"2":10000000,'3':10}
 
-  var body = q()
+  var query = q()
     //.filter('term', 'node', types[req.params['type']])
     .filter('range', types[req.params['type']], { 'gte': 0 })
     // .aggregation('date_histogram','time' , {"interval" : "1h","format":'HH',"time_zone": "+08:00"}, 'node_agg', (a)=>{
@@ -86,8 +94,16 @@ router.get('/node_stats/:type', function (req, res, next) {
         return e.aggregation('avg', types[req.params['type']],{}, 'avg')
       })
     })
-    .size(0)
-    .build();
+    .size(0);
+    let st = req.session.st;
+    let et = req.session.et;
+    // console.log("log=>"+JSON.stringify(req.session))
+    if(st && et){
+      //const b = moment(st).format("YYYY-MM-DD")
+      //const e = moment(et).format("YYYY-MM-DD")
+      query.filter('range', "create_time", { 'gte': st, 'lt':et })
+    }
+    var body = query.build();
   es_client.search({
     'index': 'hpc.node.*',
     'type': 'stats',
@@ -144,11 +160,30 @@ var mapping = {
     "newenergy_cae3":"newenergy_cae"
 }
 
+
+var stET = function(st,et,field,where){
+  if(st && et){
+      const b = moment(st).format("YYYY-MM-DD")
+      const e = moment(et).format("YYYY-MM-DD")
+      if(where){
+          return "  where "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
+      }else{
+          return " "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
+      }
+  }else{
+    return ""
+  }
+}
+
 router.get('/node_jobs', async (req, res, next) => {
   try {
+    let st = req.session.st;
+    let et = req.session.et;
+    // console.log("log=>"+JSON.stringify(req.session))
+    var t = stET(st,et,"a2.st",false)
     const { rows } = await cli.query("\
       select  a1.job_run_node as n, a2.job_queue as queue, count(distinct a2.job_id) as cnt\
-      from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 \
+      from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 AND "+t+" \
       group by n,queue order by n,queue,cnt DESC\
     ")
 

@@ -11,8 +11,19 @@ var es_client = new es.Client({
 var q = require("bodybuilder")
 
 /* GET home page. */
-router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get('/time/:st/:et', function (req, res, next) {
+
+  req.session.st = Number(req.params["st"]);
+  req.session.et = Number(req.params["et"]);
+  res.json({"result":"ok"})
+});
+
+/* GET home page. */
+router.get('/get_time', function (req, res, next) {
+
+  var s = req.session.st
+  var e = req.session.et
+  res.json({"st":s,"et":e})
 });
 
 

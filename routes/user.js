@@ -6,10 +6,10 @@ var es = require('elasticsearch');
 
 var cli = new Client(
   {
-    // "user": 'postgres',
-    "user": "eshgfuu",
-    // "host": '168.168.5.2',
-    "host": 'localhost',
+    "user": 'postgres',
+    // "user": "eshgfuu",
+    "host": '168.168.5.2',
+    // "host": 'localhost',
     "password": 'oio',
     "database": 'hpc',
     "port": 5432
@@ -18,8 +18,8 @@ var cli = new Client(
 cli.connect()
 
 var es_client = new es.Client({
-  // hosts: ['168.168.5.2:19200'],
-  hosts:['localhost:9200'],
+  hosts: ['168.168.5.2:19200'],
+//   hosts:['localhost:9200'],
   log: ['info', 'debug']
 });
 
@@ -77,7 +77,7 @@ const calTimeList = function (rows) {
     return data;
 }
 router.get('/wait_time_hist', async (req, res, next) => {
-  var body = q()
+  var query = q()
     //.filter('term', 'node', types[req.params['type']])
     // .filter('range', types[req.params['type']], { 'gte': 0 })
     // .aggregation('date_histogram','time' , {"interval" : "1h","format":'HH',"time_zone": "+08:00"}, 'node_agg', (a)=>{
@@ -88,8 +88,16 @@ router.get('/wait_time_hist', async (req, res, next) => {
             return b.aggregation('value_count', "job_id", {}, 'value_count')
         })
     })
-    .size(0)
-    .build();
+    .size(0);
+    let st = req.session.st;
+    let et = req.session.et;
+    // console.log("log=>"+JSON.stringify(req.session))
+    if(st && et){
+      const b = moment(st).format("YYYY-MM-DD")
+      const e = moment(et).format("YYYY-MM-DD")
+      query.filter('range', "job_time", { 'gte': b, 'lt':e })
+    }
+    var body = query.build();
   es_client.search({
     'index': 'hpc.job.*',
     'type': 'wait',
@@ -186,7 +194,7 @@ router.get('/wait_time_hist__', async (req, res, next) => {
 });
 
 router.get('/wait_time_hist1', async (req, res, next) => {
-  var body = q()
+  var query = q()
     //.filter('term', 'node', types[req.params['type']])
     // .filter('range', types[req.params['type']], { 'gte': 0 })
     // .aggregation('date_histogram','time' , {"interval" : "1h","format":'HH',"time_zone": "+08:00"}, 'node_agg', (a)=>{
@@ -195,8 +203,16 @@ router.get('/wait_time_hist1', async (req, res, next) => {
     .aggregation('terms','job_time' , {"size":0,"order":{"_term":"ASC"}}, 'node_agg', (a)=>{
       return a.aggregation('value_count', "job_id", {}, 'value_count')
     })
-    .size(0)
-    .build();
+    .size(0);
+    let st = req.session.st;
+    let et = req.session.et;
+    // console.log("log=>"+JSON.stringify(req.session))
+    if(st && et){
+      const b = moment(st).format("YYYY-MM-DD")
+      const e = moment(et).format("YYYY-MM-DD")
+      query.filter('range', "job_time", { 'gte': b, 'lt':e })
+    }
+    var body = query.build();
   es_client.search({
     'index': 'hpc.job.*',
     'type': 'wait',
@@ -276,10 +292,29 @@ var mapping = {
     "newenergy_cae3":"newenergy_cae"
 }
 
+var stET = function(st,et,field,where){
+  if(st && et){
+      const b = moment(st).format("YYYY-MM-DD")
+      const e = moment(et).format("YYYY-MM-DD")
+      if(where){
+          return "  where "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
+      }else{
+          return " "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
+      }
+  }else{
+    return ""
+  }
+}
+
+
 router.get('/queue_jobs', async (req, res, next) => {
   try {
+      let st = req.session.st;
+    let et = req.session.et;
+    // console.log("log=>"+JSON.stringify(req.session))
+    var t = stET(st,et,"st",true)
     const { rows } = await cli.query("\
-select job_queue,job_status,count(*) from job_result group by job_queue,job_status order by job_queue,job_status;\
+select job_queue,job_status,count(*) from job_result "+t+"group by job_queue,job_status order by job_queue,job_status;\
     ")
     // const rs = rows.map(function(element) {
     //   console.log(JSON.stringify(element))
@@ -299,8 +334,12 @@ select job_queue,job_status,count(*) from job_result group by job_queue,job_stat
 
 router.get('/owner_jobs', async (req, res, next) => {
   try {
+       let st = req.session.st;
+    let et = req.session.et;
+    // console.log("log=>"+JSON.stringify(req.session))
+    var t = stET(st,et,"st",true)
     const { rows } = await cli.query("\
-select job_queue, job_owner,job_status,count(*) as cnt from job_result group by job_queue, job_owner,job_status order by cnt DESC;\
+select job_queue, job_owner,job_status,count(*) as cnt from job_result "+t+"group by job_queue, job_owner,job_status order by cnt DESC;\
     ")
     // const rs = rows.map(function(element) {
     //   console.log(JSON.stringify(element))
@@ -325,10 +364,14 @@ const formatT = function (t) {
 }
 router.get('/owner_jobs_wait_time', async (req, res, next) => {
   try {
+       let st = req.session.st;
+    let et = req.session.et;
+    // console.log("log=>"+JSON.stringify(req.session))
+    var t = stET(st,et,"a2.st",false)
     const { rows } = await cli.query("\
         with h as(\
             select EXTRACT(EPOCH FROM(a1.create_time - a2.st)) as tu, a2.job_queue as queue, a2.job_owner as owner, a2.job_id as jid\
-            from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 group by tu,queue,owner,jid\
+            from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3  AND"+t+" group by tu,queue,owner,jid\
         )\
         select queue, owner, avg(tu) * INTERVAL '1 second' as t, count(*) as count ,\
         max(tu) * INTERVAL '1 second' as mxt,\
@@ -360,6 +403,10 @@ router.get('/owner_jobs_wait_time', async (req, res, next) => {
 
 router.get('/queue_wait_time_hist', async (req, res, next) => {
     try {
+        let st = req.session.st;
+    let et = req.session.et;
+    // console.log("log=>"+JSON.stringify(req.session))
+    var t = stET(st,et,"a2.st",false)
         var { rows } = await cli.query("\
       with h AS(\
     select a2.job_queue, a1.job_id, a2.job_walltime, (a1.create_time - a2.st) as tu, extract(DAY FROM (a1.create_time - a2.st)) as d,extract(HOUR FROM (a1.create_time - a2.st)) as h,extract(MINUTE FROM (a1.create_time - a2.st)) as m,\
@@ -369,7 +416,7 @@ router.get('/queue_wait_time_hist', async (req, res, next) => {
         ELSE extract(MINUTE FROM (a1.create_time - a2.st))||'M' \
     END\
     ) as tu_text\
-    from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 order by tu\
+    from job_dispatch as a1, job_result as a2 where a1.job_run_id = a2.job_run_id AND a2.job_status < 3 AND "+t+" order by tu\
     )\
     select tu_text, job_queue,count(DISTINCT job_id) as cnt from h group by tu_text,job_queue order by cnt desc;\
     ")
@@ -391,10 +438,14 @@ router.get('/queue_wait_time_hist', async (req, res, next) => {
 
 router.get('/queue_mem_hist', async (req, res, next) => {
     try {
+        let st = req.session.st;
+    let et = req.session.et;
+    console.log("log=>"+JSON.stringify(req.session))
+    var t = stET(st,et,"st",false)
         var { rows } = await cli.query("\
       with h as (\
         select ceil((to_number(replace(job_mem,'kb',''),'9999999999999999999')/1000/1000)) as t, \
-            job_queue, count(*) as cnt  from job_result where job_status <3  AND job_mem !='' group by t ,job_queue order by t\
+            job_queue, count(*) as cnt  from job_result where job_status <3  AND job_mem !='' AND "+t+" group by t ,job_queue order by t\
         )\
         select\
             (CASE WHEN t <= 8 THEN '0~8G'\
