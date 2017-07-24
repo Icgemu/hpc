@@ -292,7 +292,7 @@ var mapping = {
     "newenergy_cae3":"newenergy_cae"
 }
 
-var stET = function(st,et,field,where){
+var stET = async function(st,et,field,where){
   if(st && et){
       const b = moment(st).format("YYYY-MM-DD")
       const e = moment(et).format("YYYY-MM-DD")
@@ -302,7 +302,12 @@ var stET = function(st,et,field,where){
           return " "+ field +">='" + b +"' AND " + field +" < '"+ e +"' ";
       }
   }else{
-    return ""
+      const { rows } = await cli.query("select max(st) as mx from job_result;")
+      const mx = moment(rows[0].mx)
+      const e = mx.add(1,"days").format("YYYY-MM-DD")
+      const s = mx.subtract(1,"months").format("YYYY-MM-DD")
+      console.log(s + "->" + e)
+      return stET(s,e,field,where)
   }
 }
 
