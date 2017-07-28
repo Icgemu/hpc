@@ -1,14 +1,14 @@
 var express = require('express');
 var router = express.Router();
 
-var es = require('elasticsearch');
+// var es = require('elasticsearch');
+// var {newPg, es_client,stET} = require("./config")
+// var es_client = new es.Client({
+//   hosts: ['168.168.5.2:19200'],
+//   log: ['info', 'debug']
+// });
 
-var es_client = new es.Client({
-  hosts: ['168.168.5.2:19200'],
-  log: ['info', 'debug']
-});
-
-var q = require("bodybuilder")
+// var q = require("bodybuilder")
 
 /* GET home page. */
 router.get('/time/:st/:et', function (req, res, next) {

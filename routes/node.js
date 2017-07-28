@@ -112,6 +112,7 @@ router.get('/node_stats/:type', function (req, res, next) {
     // console.log(JSON.stringify(resp));
 
     if (err) {
+      console.log(JSON.stringify(err));
       res.status(404).json({ 'error': 'Data Not Found!' })
     } else {
       var data=[]
@@ -137,6 +138,70 @@ router.get('/node_stats/:type', function (req, res, next) {
 
 });
 
+
+
+/* GET time stats. */
+router.get('/stats/:type', function (req, res, next) {
+  var types = { 'cpu': 'cpu_usage', 'disk': 'disk_usage', 'mem': 'mem_usage' }
+//   var subtypes = {'1':10,"2":10000000,'3':10}
+
+  var query = q()
+    //.filter('term', 'node', types[req.params['type']])
+    .filter('range', types[req.params['type']], { 'gte': 0 })
+    // .aggregation('date_histogram','time' , {"interval" : "1h","format":'HH',"time_zone": "+08:00"}, 'node_agg', (a)=>{
+    //   return a.aggregation('histogram', types[req.params['type']],{"interval" : subtypes[req.params['subtype']]}, 'bins')
+    // })
+    .aggregation('terms','node_name' , {"size":0}, 'node_agg', (a)=>{
+      return a.aggregation('date_histogram', "create_time",{"interval" : "1M","format":'YYYY-MM',"time_zone": "+08:00"}, 'nodes',(e)=>{
+        return e.aggregation('stats', types[req.params['type']],{}, 'stats')
+      })
+    })
+    .size(0);
+    // let st = req.session.st;
+    // let et = req.session.et;
+    // // console.log("log=>"+JSON.stringify(req.session))
+    // if(st && et){
+    //   //const b = moment(st).format("YYYY-MM-DD")
+    //   //const e = moment(et).format("YYYY-MM-DD")
+    //   query.filter('range', "create_time", { 'gte': st, 'lt':et })
+    // }
+    var body = query.build();
+  es_client.search({
+    'index': 'hpc.node.*',
+    'type': 'stats',
+    'body': body
+  }, function (err, resp) {
+    // console.log(JSON.stringify(resp));
+
+    if (err) {
+      console.log(JSON.stringify(err));
+      res.status(404).json({ 'error': 'Data Not Found!' })
+    } else {
+      var data=[]
+      var buckets = resp['aggregations']['node_agg']['buckets']
+      buckets.forEach(function(b) {
+        const t = b["key"]
+        const nodes = b["nodes"]["buckets"]
+        nodes.forEach(function(c){
+          const node = c["key_as_string"]
+          const min = c["stats"]["min"]
+          const max = c["stats"]["max"]
+          const avg = c["stats"]["avg"]
+          // data.push({
+          //      "t":t,
+          //     "queue":node,
+          //     "cnt":value
+          // })
+          console.log(t+","+node+","+min+","+max+","+avg)
+        })
+      }, this);
+      
+      res.json(data)
+      //res.json(resp)
+    }
+  })
+
+});
 
 var mapping = {
     "safety_cae1_1":"safety_cae",

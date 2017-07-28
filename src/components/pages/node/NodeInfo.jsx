@@ -9,7 +9,7 @@ import baseBarOptions from '../echarts/data/bar-base';
 import {Option1} from "./option/Option1"
 import {Option2} from "./option/Option2"
 import {Option3} from "./option/Option3"
-
+import {Option4} from "./option/Option4"
 class NodeInfo extends React.Component {
     constructor(props) {
         super(props);
@@ -19,6 +19,7 @@ class NodeInfo extends React.Component {
         Option1(this)
         Option2(this)
         Option3(this)
+        Option4(this)
         // ECharts.connect("g1")
     }
 
@@ -70,7 +71,7 @@ class NodeInfo extends React.Component {
         var chart1 = option1.tooltip ? <ECharts id="n1" group="n2" option={option1}/> : null
         var chart2 = option2.tooltip ? <ECharts id="n2"  group="n2" option={option2}/> : null
         var chart3 = option3.tooltip ? <ECharts id="n3"  option={option3}/> : null
-        // var chart4 = option4.title ? <ECharts  id="c4" option={option4}/> : null
+        var chart4 = option4.tooltip ? <ECharts  id="n4" option={option4}/> : null
         // var chart5 = option5.tooltip ? <ECharts id="c5"  option={option5}/> : null
         // var chart6 = option6.tooltip ? <ECharts id="c6"  option={option6}/> : null
         // var chart7 = option7.tooltip ? <ECharts id="c7"  option={option7}/> : null
@@ -84,6 +85,9 @@ class NodeInfo extends React.Component {
                 </div>
                 <div style={styles} width="400px">
                     {chart3}
+                </div>
+                <div style={styles} width="400px">
+                    {chart4}
                 </div>
                 <div style={styles}>
                     {chart2}

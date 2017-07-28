@@ -3,10 +3,10 @@ var es = require('elasticsearch');
 var moment = require("moment")
 var newPg = function () {
     const cli = new Client({
-        // "user": 'postgres',
-        "user": "eshgfuu",
-        // "host": '168.168.5.2',
-        "host": 'localhost',
+        "user": 'postgres',
+        // "user": "eshgfuu",
+        "host": '168.168.5.2',
+        // "host": 'localhost',
         "password": 'oio',
         "database": 'hpc',
         "port": 5432
@@ -19,8 +19,8 @@ var cli = newPg()
 
 exports.newPg = newPg
 exports.es_client = new es.Client({
-//   hosts: ['168.168.5.2:19200'],
-  hosts:['localhost:9200'],
+  hosts: ['168.168.5.2:19200'],
+//   hosts:['localhost:9200'],
   log: ['info', 'debug']
 });
 

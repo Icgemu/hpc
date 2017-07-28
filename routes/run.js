@@ -3,21 +3,21 @@ const Router = require('express-promise-router')
 const router = new Router()
 var { Client } = require('pg')
 const moment = require("moment")
+var {newPg, es_client,stET} = require("./config")
 
-
-var cli = new Client(
-    {
-        "user": 'postgres',
-        // "user": "eshgfuu",
-        "host": '168.168.5.2',
-        // "host": 'localhost',
-        "password": 'oio',
-        "database": 'hpc',
-        "port": 5432
-    }
-);
-cli.connect()
-
+// var cli = new Client(
+//     {
+//         "user": 'postgres',
+//         // "user": "eshgfuu",
+//         "host": '168.168.5.2',
+//         // "host": 'localhost',
+//         "password": 'oio',
+//         "database": 'hpc',
+//         "port": 5432
+//     }
+// );
+// cli.connect()
+var cli = newPg();
 var mapping = {
     "safety_cae1_1":"safety_cae",
     "body_cae":"body_cae",

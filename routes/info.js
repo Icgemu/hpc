@@ -1,12 +1,12 @@
 var express = require('express');
 var router = express.Router();
+var {es_client} = require("./config")
+// var es = require('elasticsearch');
 
-var es = require('elasticsearch');
-
-var es_client = new es.Client({
-  hosts: ['168.168.5.2:19200'],
-  log: ['info', 'debug']
-});
+// var es_client = new es.Client({
+//   hosts: ['168.168.5.2:19200'],
+//   log: ['info', 'debug']
+// });
 
 var q = require("bodybuilder")
 
